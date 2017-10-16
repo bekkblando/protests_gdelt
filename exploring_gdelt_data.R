@@ -15,8 +15,8 @@ project <- "datascienceprotest" # put your project ID here
 
 # Getting some relevent data
 # Modify columns for different visualization
-sql <- "SELECT Actor1Name, Actor2Name, EventCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, FractionDate FROM [gdelt-bq:full.events] WHERE EventRootCode='14' and Year=2017"
-
+sql <- "SELECT GLOBALEVENTID, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, FractionDate FROM [gdelt-bq:full.events] WHERE EventRootCode='14' and Year=2017"
+sql <- "SELECT * FROM [gdelt-bq:gdeltv2.events] WHERE EventRootCode='14' and Year=2017"
 
 # Execute the query and store the result NOTICE max_pages is set to Inf 
 # Try not to run this too much or remove max_pages to get the first page
@@ -29,7 +29,7 @@ db_conn <- dbConnect(SQLite(), db_name)
 
 if (!dbExistsTable(db_conn, 'events')){
   dbSendQuery(conn = db_conn,
-              'CREATE TABLE Events (Actor1Name TEXT, Actor2Name TEXT, EventCode INTEGER, AvgTone INTEGER, GoldsteinScale INTEGER, IsRootEvent INTEGER, QuadClass INTEGER, NumMentions INTEGER, NumSources INTEGER, Actor1Geo_Lat FLOAT, Actor1Geo_Long FLOAT, Actor2Geo_Lat FLOAT, Actor2Geo_Long FLOAT, FractionDate FLOAT)')
+              'CREATE TABLE Events (GLOBALEVENTID INTEGER, Actor1Name TEXT, Actor2Name TEXT, EventCode INTEGER, EventRootCode INTEGER, AvgTone INTEGER, GoldsteinScale INTEGER, IsRootEvent INTEGER, QuadClass INTEGER, NumMentions INTEGER, NumSources INTEGER, Actor1Geo_Lat FLOAT, Actor1Geo_Long FLOAT, Actor2Geo_Lat FLOAT, Actor2Geo_Long FLOAT, FractionDate FLOAT)')
 }
 
 # Check it out yo
@@ -73,5 +73,37 @@ nrow(local_data[ which(local_data$Actor1Name == "UNITED STATES" && local_data$Ev
 
 length(which(EventCode == 145))/nrow(local_data) * 100
 
+event_tone = data.frame(EventCode=EventCode, AvgTone=AvgTone)
+
+local_data$EventCode <- as.factor(local_data$EventCode)
+
+boxplot(AvgTone~EventCode,local_data)
+
+
+sampled_data = local_data[sample(nrow(local_data), 500), ]
+
+root_events = data.frame(sampled_data[which(sampled_data$IsRootEvent == TRUE),])
+
+non_root = sampled_data[which(sampled_data$IsRootEvent == FALSE),]
+
+
+apply(root_events, 1, function(row){print(paste0(row))})
+# Get any events with matching actors, within 1.5 months of the root event
+
+# Add a new column to the root_events table of selected events
+root_events$sequence<-NA
+
+
+# Apply a function to return the IDs of events that fit the actors and are within the proper dates
+create_sequence <- function(row){
+
+  event_query = non_root[which(non_root$Actor1Name == row["Actor1Name"], non_root$Actor2Name == row["Actor2Name"]),]
+  
+  if(!identical(event_query, character(0)) && length(event_query) != 0){
+    return(event_query)
+    }
+}
+
+root_events$sequence = apply(root_events, 1, function(row){create_sequence(row)})
 
 
