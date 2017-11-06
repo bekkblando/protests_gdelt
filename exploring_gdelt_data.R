@@ -97,8 +97,13 @@ root_events$sequence<-NA
 # Apply a function to return the IDs of events that fit the actors and are within the proper dates
 create_sequence <- function(row){
 
+  
   event_query = non_root[which(non_root$Actor1Name == row["Actor1Name"], non_root$Actor2Name == row["Actor2Name"]),]
   
+  # TODO
+  # Filter non_root events that happen more then 1.5 months from the root event
+  #  
+    
   if(!identical(event_query, character(0)) && length(event_query) != 0){
     print(paste0(event_query$GLOBALEVENTID))
     return(event_query$GLOBALEVENTID)
@@ -106,5 +111,3 @@ create_sequence <- function(row){
 }
 
 root_events$sequence = apply(root_events, 1, function(row){create_sequence(row)})
-
-root_events$sequence[[4]]$AvgTone
