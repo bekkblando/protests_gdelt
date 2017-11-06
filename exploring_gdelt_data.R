@@ -15,7 +15,7 @@ project <- "datascienceprotest" # put your project ID here
 
 # Getting some relevent data
 # Modify columns for different visualization
-sql <- "SELECT GLOBALEVENTID, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, FractionDate FROM [gdelt-bq:full.events] WHERE EventRootCode='14' and Year=2017"
+sql <- "SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, FractionDate FROM [gdelt-bq:full.events] WHERE EventRootCode='14' and Year=2017"
 sql <- "SELECT * FROM [gdelt-bq:gdeltv2.events] WHERE EventRootCode='14' and Year=2017"
 
 # Execute the query and store the result NOTICE max_pages is set to Inf 
@@ -29,7 +29,7 @@ db_conn <- dbConnect(SQLite(), db_name)
 
 if (!dbExistsTable(db_conn, 'events')){
   dbSendQuery(conn = db_conn,
-              'CREATE TABLE Events (GLOBALEVENTID INTEGER, Actor1Name TEXT, Actor2Name TEXT, EventCode INTEGER, EventRootCode INTEGER, AvgTone INTEGER, GoldsteinScale INTEGER, IsRootEvent INTEGER, QuadClass INTEGER, NumMentions INTEGER, NumSources INTEGER, Actor1Geo_Lat FLOAT, Actor1Geo_Long FLOAT, Actor2Geo_Lat FLOAT, Actor2Geo_Long FLOAT, FractionDate FLOAT)')
+              'CREATE TABLE Events (GLOBALEVENTID INTEGER, ActionGeo_Lat FLOAT, ActionGeo_Long FLOAT, Actor1Name TEXT, Actor2Name TEXT, EventCode INTEGER, EventRootCode INTEGER, AvgTone INTEGER, GoldsteinScale INTEGER, IsRootEvent INTEGER, QuadClass INTEGER, NumMentions INTEGER, NumSources INTEGER, Actor1Geo_Lat FLOAT, Actor1Geo_Long FLOAT, Actor2Geo_Lat FLOAT, Actor2Geo_Long FLOAT, FractionDate FLOAT)')
 }
 
 # Check it out yo
@@ -100,10 +100,11 @@ create_sequence <- function(row){
   event_query = non_root[which(non_root$Actor1Name == row["Actor1Name"], non_root$Actor2Name == row["Actor2Name"]),]
   
   if(!identical(event_query, character(0)) && length(event_query) != 0){
-    return(event_query)
+    print(paste0(event_query$GLOBALEVENTID))
+    return(event_query$GLOBALEVENTID)
     }
 }
 
 root_events$sequence = apply(root_events, 1, function(row){create_sequence(row)})
 
-
+root_events$sequence[[4]]$AvgTone
