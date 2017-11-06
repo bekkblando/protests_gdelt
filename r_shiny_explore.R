@@ -1,5 +1,11 @@
 library(shiny)
 library(leaflet)
+# install.packages("plyr")
+library(plyr)
+
+# Jitter the values yo
+jitter(root_events$ActionGeo_Long, factor = 0.0001)
+jitter(root_events$ActionGeo_Lat, factor = 0.0001)
 
 ui <- fluidPage(
   leafletOutput("map")
@@ -18,28 +24,53 @@ nicons <- awesomeIcons(
   markerColor = "blue"
 )
 
+
 server <- function(input, output, session) {
   output$map <- renderLeaflet({
     leaflet() %>%
       addProviderTiles(providers$Stamen.TonerLite,
-      options = providerTileOptions(noWrap = TRUE)
+        options = providerTileOptions(noWrap = TRUE)
       ) %>%
-      addAwesomeMarkers(root_events$Actor1Geo_Long, root_events$Actor1Geo_Lat, layerId=root_events$GLOBALEVENTID, 
-                        icon=ricons, popup = root_events$Actor1Name, group = "root")
-      # addAwesomeMarkers(root_events$Actor2Geo_Long, root_events$Actor2Geo_Lat, icon=ricons, popup = root_events$Actor2Name)
-  })
+
+      addAwesomeMarkers(root_events$ActionGeo_Long, root_events$ActionGeo_Lat, layerId=root_events$GLOBALEVENTID, 
+                        icon=ricons, popup = root_events$Actor1Name, group = "root_events")
+    })
   
-  #Show popup on click
+  # Show popup on click
   observeEvent(input$map_marker_click, {
     click <- input$map_marker_click
     
     # Show non-root events based on the root event
-    print(paste0(data.frame(root_events[which(root_events$GLOBALEVENTID == click$id),][17])$Actor1Geo_Long))
+    sequence = root_events[which(root_events$GLOBALEVENTID == click$id),]$sequence
+    # = non_root[which(non_root$GLOBALEVENTID == sequence)]
+    non_root_seq = non_root[which(non_root$GLOBALEVENTID %in% sequence),]
+
+    if(identical(non_root_seq$ActionGeo_Long, numeric(0)) || length(sequence) == 0){
+      print(paste0(sequence))
+      print(paste0("No Coords Yo"))
+      return("No Coordinates")
+    }
     
-    text<-paste("Lattitude ", click$id, "Longtitude ", click$lng)
+    print(paste0(typeof(non_root_seq$ActionGeo_Long)))
+    
+    
+    # text<-paste("Lattitude ", click$id, "Longtitude ", click$lng)
     proxy <- leafletProxy("map")
-    proxy %>% clearPopups() %>%
-      addPopups(click$lng, click$lat, text)
+
+    # Hide all the root events
+    clearGroup(proxy, "root_events")
+    clearGroup(proxy, "sequence")
+    
+    # Show the sequence
+    output$map <- renderLeaflet({
+      leaflet() %>%
+        addProviderTiles(providers$Stamen.TonerLite,
+                         options = providerTileOptions(noWrap = TRUE)
+        ) %>%
+        
+        addAwesomeMarkers(non_root_seq$ActionGeo_Long, non_root_seq$ActionGeo_Lat, layerId=non_root_seq$GLOBALEVENTID, 
+                          icon=nicons, popup = non_root_seq$Actor1Name, group = "sequence")
+    })
   })
 }
 
