@@ -1,4 +1,4 @@
-rm(list = ls())
+
 
 install.packages("httr")
 install.packages("bigrquery")
@@ -29,7 +29,8 @@ db_conn <- dbConnect(SQLite(), db_name)
 
 if (!dbExistsTable(db_conn, 'events')){
   dbSendQuery(conn = db_conn,
-              'CREATE TABLE Events (GLOBALEVENTID INTEGER, ActionGeo_Lat FLOAT, ActionGeo_Long FLOAT, Actor1Name TEXT, Actor2Name TEXT, EventCode INTEGER, EventRootCode INTEGER, AvgTone INTEGER, GoldsteinScale INTEGER, IsRootEvent INTEGER, QuadClass INTEGER, NumMentions INTEGER, NumSources INTEGER, Actor1Geo_Lat FLOAT, Actor1Geo_Long FLOAT, Actor2Geo_Lat FLOAT, Actor2Geo_Long FLOAT, FractionDate FLOAT)')
+              'CREATE TABLE Events (GLOBALEVENTID INTEGER, ActionGeo_Lat FLOAT, 
+              ActionGeo_Long FLOAT, Actor1Name TEXT, Actor2Name TEXT, EventCode INTEGER, EventRootCode INTEGER, AvgTone INTEGER, GoldsteinScale INTEGER, IsRootEvent INTEGER, QuadClass INTEGER, NumMentions INTEGER, NumSources INTEGER, Actor1Geo_Lat FLOAT, Actor1Geo_Long FLOAT, Actor2Geo_Lat FLOAT, Actor2Geo_Long FLOAT, FractionDate FLOAT)')
 }
 
 # Check it out yo
@@ -80,7 +81,7 @@ local_data$EventCode <- as.factor(local_data$EventCode)
 boxplot(AvgTone~EventCode,local_data)
 
 
-sampled_data = local_data[sample(nrow(local_data), 500), ]
+sampled_data = local_data[sample(nrow(local_data), 5000), ]
 
 root_events = data.frame(sampled_data[which(sampled_data$IsRootEvent == TRUE),])
 
@@ -102,8 +103,8 @@ create_sequence <- function(row){
   
   # TODO
   # Filter non_root events that happen more then 1.5 months from the root event
-  #  
-    
+  # Filter event root codes based on https://www.hindawi.com/journals/ddns/2017/8180272/tab1/se
+
   if(!identical(event_query, character(0)) && length(event_query) != 0){
     print(paste0(event_query$GLOBALEVENTID))
     return(event_query$GLOBALEVENTID)
