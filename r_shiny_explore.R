@@ -8,7 +8,12 @@ jitter(root_events$ActionGeo_Long, factor = 0.0001)
 jitter(root_events$ActionGeo_Lat, factor = 0.0001)
 
 ui <- fluidPage(
-  leafletOutput("map")
+  fluidRow(
+    column(12, leafletOutput("map"))
+  ),
+  fluidRow(
+    column(12, dataTableOutput('table'))
+  )
 )
 
 ricons <- awesomeIcons(
@@ -51,7 +56,7 @@ server <- function(input, output, session) {
       return("No Coordinates")
     }
     
-    print(paste0(typeof(non_root_seq$ActionGeo_Long)))
+    print(paste0(typeof(non_root_seq)))
     
     
     # text<-paste("Lattitude ", click$id, "Longtitude ", click$lng)
@@ -62,15 +67,9 @@ server <- function(input, output, session) {
     clearGroup(proxy, "sequence")
     
     # Show the sequence
-    output$map <- renderLeaflet({
-      leaflet() %>%
-        addProviderTiles(providers$Stamen.TonerLite,
-                         options = providerTileOptions(noWrap = TRUE)
-        ) %>%
-        
-        addAwesomeMarkers(non_root_seq$ActionGeo_Long, non_root_seq$ActionGeo_Lat, layerId=non_root_seq$GLOBALEVENTID, 
+    proxy %>% addAwesomeMarkers(non_root_seq$ActionGeo_Long, non_root_seq$ActionGeo_Lat, layerId=non_root_seq$GLOBALEVENTID, 
                           icon=nicons, popup = non_root_seq$Actor1Name, group = "sequence")
-    })
+    output$table <- renderDataTable(data.frame(non_root_seq))
   })
 }
 
