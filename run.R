@@ -1,7 +1,3 @@
-library(shiny)
-library(leaflet)
-library(plyr)
-
 my_packages = c("shiny", "leaflet", "plyr")
 
 install_if_missing = function(p) {
@@ -12,6 +8,9 @@ install_if_missing = function(p) {
 
 invisible(sapply(my_packages, install_if_missing))
 
+library(shiny)
+library(leaflet)
+library(plyr)
 
 port <- Sys.getenv('PORT')
 
