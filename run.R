@@ -1,4 +1,5 @@
 library(shiny)
+install.packages("leaflet")
 library(leaflet)
 # install.packages("plyr")
 library(plyr)
