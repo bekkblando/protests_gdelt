@@ -1,13 +1,3 @@
-my_packages = c("shiny", "leaflet", "plyr")
-
-install_if_missing = function(p) {
-  if (p %in% rownames(installed.packages()) == FALSE) {
-    install.packages(p)
-  }
-}
-
-invisible(sapply(my_packages, install_if_missing))
-
 library(shiny)
 library(leaflet)
 library(plyr)
