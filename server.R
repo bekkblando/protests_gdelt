@@ -1,33 +1,14 @@
 library(shiny)
 library(leaflet)
 library(plyr)
+library("bigrquery")
 
-project <- "datascienceprotest" # put your project ID here
+project <- "datascienceprotest"
 
 get_violent_protest <- function(year, month){
   sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, FractionDate FROM [gdelt-bq:full.events] WHERE EventCode='141' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
   return(query_exec(sql, project = project, max_pages = Inf))
 }
-
-
-# Jitter the values yo
-jitter(root_events$ActionGeo_Long, factor = 0.0001)
-jitter(root_events$ActionGeo_Lat, factor = 0.0001)
-
-ui <- fluidPage(
-  # Year Picker
-  fluidRow(
-    column(12, selectInput("year", "Year", choices = c(" ", seq(2000,2017)))),
-    column(12, selectInput("month", "Month", choices = c(" ", seq(1,12)))),
-    column(12, actionButton("date_submit", "Submit"))
-  ),
-  fluidRow(
-    column(12, leafletOutput("map"))
-  ),
-  fluidRow(
-    column(12, dataTableOutput('table'))
-  )
-)
 
 ricons <- awesomeIcons(
   icon = 'ios-close',
@@ -43,7 +24,7 @@ nicons <- awesomeIcons(
 )
 
 
-server <- function(input, output, session) {
+shinyServer(function(input, output, session) {
 
   # Render Year Picker
     # When year is selected, do google query for root events within the year
@@ -99,6 +80,4 @@ server <- function(input, output, session) {
     # Render more notes if a violent protest exist within this
     output$table <- renderDataTable(data.frame(non_root_seq))
   })
-}
-
-shinyApp(ui, server)
+})
