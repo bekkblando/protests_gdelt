@@ -3,6 +3,14 @@ library(leaflet)
 # install.packages("plyr")
 library(plyr)
 
+port <- Sys.getenv('PORT')
+
+shiny::runApp(
+  appDir = getwd(),
+  host = '0.0.0.0',
+  port = as.numeric(port)
+)
+
 # Jitter the values yo
 jitter(root_events$ActionGeo_Long, factor = 0.0001)
 jitter(root_events$ActionGeo_Lat, factor = 0.0001)
