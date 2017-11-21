@@ -20,6 +20,8 @@ sql <- "SELECT * FROM [gdelt-bq:gdeltv2.events] WHERE EventRootCode='14' and Yea
 
 # Execute the query and store the result NOTICE max_pages is set to Inf 
 # Try not to run this too much or remove max_pages to get the first page
+sql <-paste("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, FractionDate FROM [gdelt-bq:full.events] 
+WHERE EventRootCode in ('10','11','12','13', '14') and ActionGeo_Lat=", violent_action_lat ," and ActionGeo_Long=", violent_action_long ,"and MonthYear=201701")
 protests <- query_exec(sql, project = project, max_pages = Inf)
 
 # NOTICE: Change the file path to yours
