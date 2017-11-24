@@ -12,8 +12,10 @@ project <- "datascienceprotest"
 
 set_service_token(Sys.getenv("BIGQUERYCRED"))
 
-get_violent_protest <- function(year, month){
-  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='141' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
+get_violent_protest <- function(year, month, day){
+  fraction_date = signif(strtoi(year) + (strtoi(month) * 30 + strtoi(day))/365, digits=8)
+  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='141' and FractionDate=", fraction_date)
+  print(sql)
   return(query_exec(sql, project = project))
 }
 
@@ -79,9 +81,9 @@ shinyServer(function(input, output, session) {
     # Protest Query
 
     if(input$violence == "Violent Protests"){
-      protest <- get_violent_protest(input$year, input$month)
+      protest <- get_violent_protest(input$year, input$month, input$day)
     }else{
-      protest <- get_non_violent_protest(input$year, input$month)
+      protest <- get_non_violent_protest(input$year, input$month, input$day)
     }
     output$map <- renderLeaflet({
       leaflet() %>%
