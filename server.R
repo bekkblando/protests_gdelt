@@ -10,15 +10,15 @@ library("bigrquery")
 
 project <- "datascienceprotest"
 
-set_service_token("DataScienceProtest-2dc6d98778fa.json")
+set_service_token(Sys.getenv("BIGQUERYCRED"))
 
 get_violent_protest <- function(year, month){
-  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='141' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
-  return(query_exec(sql, project = project, max_pages = Inf))
+  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='141' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
+  return(query_exec(sql, project = project))
 }
 
 get_non_violent_protest <- function(year, month){
-  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='140' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
+  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='140' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
   return(query_exec(sql, project = project, max_pages = Inf))
 }
 
@@ -37,10 +37,10 @@ get_sequence <- function(violent_protest){
   violent_actor1 = violent_protest$Actor1Name
   violent_actor2 = violent_protest$Actor2Name
   fractional_date = violent_protest$FractionDate
-  
+
   lower_date = fractional_date - 45/365
   higher_date = fractional_date + 45/365
-  
+
   sql <-paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, FractionDate FROM [gdelt-bq:full.events] WHERE EventRootCode in ('10','11','12','13', '14') and FractionDate <=", higher_date ," and FractionDate >=", lower_date)
   if(!is.na(violent_actor1)){
     sql <- paste0(sql, " and Actor1Name='", violent_actor1, "'")
@@ -49,7 +49,7 @@ get_sequence <- function(violent_protest){
     sql <- paste0(sql, " and Actor2Name='", violent_actor2, "'")
   }
   print(sql)
-  
+
   return(query_exec(sql, project = project, max_pages = Inf))
 }
 
@@ -77,7 +77,7 @@ shinyServer(function(input, output, session) {
     click <- input$date_submit
 
     # Protest Query
-    
+
     if(input$violence == "Violent Protests"){
       protest <- get_violent_protest(input$year, input$month)
     }else{
