@@ -14,10 +14,8 @@ project <- "datascienceprotest"
 set_service_token("DataScienceProtest-2dc6d98778fa.json")
 
 get_violent_protest <- function(year, month, day, country){
-  print(paste0(country))
   fraction_date = signif(strtoi(year) + (strtoi(month) * 30 + strtoi(day))/365, digits=8)
   sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='141' and FractionDate=", fraction_date, " and ActionGeo_CountryCode='", paste0(countrycode(country, "country.name.en" ,"fips105")), "'")
-  print(sql)
   return(query_exec(sql, project = project))
 }
 
