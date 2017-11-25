@@ -3,9 +3,20 @@ library(leaflet)
 library(plyr)
 library("bigrquery")
 library(countrycode)
+library("ggplot2")
 
-# Working on Heroku
-# CSS Styling
+# High Leverage - Low Cost
+  # Working on Heroku - Bekk - Sunday
+  # CSS Styling - Bekk - Sunday
+  # Graphs Per Sequence - Sadie
+  # Holistic Statistics - Sadie/Bekk
+    # Different types of protests increasing over time - Saide/Bekk
+    # AvgTone and Goldstein Scale Per year - Sadie/Bekk
+
+# Need to be done
+  # Fix crashing - Bekk
+  # More Specific Sequences - Tyler and Bjerken
+
 # Download button for a report on what's on the page
 
 
@@ -19,7 +30,7 @@ get_violent_protest <- function(year, month, country){
 }
 
 get_non_violent_protest <- function(year, month){
-  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='140' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
+  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, NumMentions, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='140' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
   return(query_exec(sql, project = project, max_pages = Inf))
 }
 
@@ -54,6 +65,74 @@ get_sequence <- function(violent_protest){
   return(query_exec(sql, project = project, max_pages = Inf))
 }
 
+# Render Saidie's Graphs Yo
+
+mentions_to_avgtone <- function(events){
+  return(renderPlot(symbols(events$NumMentions, events$AvgTone, circles=events$EventCode, inches=0.35, 
+          fg="white", bg="blue", xlab = "Number of Mentions", ylab = "Average Tone")))
+}
+
+goldstein_to_mentions <- function(events){
+  return(renderPlot(symbols(events$GoldsteinScale, events$NumMentions, circles = events$IsRootEvent,
+          inches=0.15, fg="white", bg="red", xlab = "Goldstein Scale", 
+          ylab = "Number of Mentions")))
+}
+
+sunflowerplots1 <- function(events){
+  return(renderPlot(sunflowerplot(events$AvgTone, events$NumMentions)))
+  
+}
+
+sunflowerplots2 <- function(events){
+  return(renderPlot(sunflowerplot(events$NumMentions, events$NumSources)))
+  
+}
+
+
+mentions_and_avgtone <- function(events){
+  
+  p <- ggplot2::ggplot(events, aes(x = EventCode, y = NumMentions)) +
+    geom_bar(stat = "identity", fill = "orange", 
+             width = .02) + scale_y_continuous(breaks = sequence(sum(events$NumMentions))) +
+    labs(x = "Event Code", y = "Number of Mentions") +
+    ggtitle("Number of Mentions per Event Code") +
+    theme_bw() +
+    theme(panel.grid.major.x = element_blank(),
+          panel.grid.major.y = element_line(colour = "grey50"),
+          plot.title = element_text(size = rel(1.5), face = "bold", 
+                                    vjust = 1.5), axis.title = element_text(face = "bold"))
+  return(renderPlot(p))
+
+}
+
+eventcode_count <- function(events){
+
+  pie_data <- data.frame(
+    variable = events$EventCode,
+    value = events$IsRootEvent)
+  
+    p <- ggplot2::ggplot(pie_data, aes(x = variable, y= value, 
+                                       fill=variable)) + 
+    geom_bar(width = 1, colour ="black", stat="identity") +
+    ggtitle("Is a Root Event Based on Event Code") +
+    theme_bw() + theme(panel.grid.major = element_blank(), 
+                       panel.border = element_blank(),
+                       plot.title = element_text(size = rel(1.5), face = "bold"),
+                       axis.title = element_blank(), 
+                       axis.text = element_blank(),
+                       axis.ticks = element_blank(),
+                       legend.text = element_text(events$EventCode))
+   return(renderPlot(p))
+}
+
+
+# End Rendering Saidie's Graphs my hellsink
+
+
+
+
+
+
 ricons <- awesomeIcons(
   icon = 'ios-close',
   iconColor = 'black',
@@ -84,7 +163,8 @@ shinyServer(function(input, output, session) {
     }else{
       protest <- get_non_violent_protest(input$year, input$month, input$country)
     }
-    print("test")
+    
+    
     output$map <- renderLeaflet({
       leaflet() %>%
         addProviderTiles(providers$Stamen.TonerLite,
@@ -132,5 +212,12 @@ shinyServer(function(input, output, session) {
     output$seq_table <- renderDataTable(data.frame(non_root_seq))
     output$selected_table <- renderDataTable(data.frame(root_protest))
     output$mentions <- renderDataTable(data.frame(non_root_seq_mentions))
+    # Render Sadie's Graphs
+    output$mentions_to_avgtone <- mentions_to_avgtone(non_root_seq)
+    output$goldstein_to_mentions <- goldstein_to_mentions(non_root_seq)
+    output$sunflowerplots1 <- sunflowerplots1(non_root_seq)
+    output$sunflowerplots2 <- sunflowerplots1(non_root_seq)
+    output$mentions_and_avgtone <- mentions_and_avgtone(non_root_seq)
+    output$mentions_and_avgtone <- eventcode_count(non_root_seq)
   })
 })
