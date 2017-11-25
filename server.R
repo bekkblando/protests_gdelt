@@ -22,7 +22,7 @@ library("ggplot2")
 
 project <- "datascienceprotest"
 
-set_service_token("DataScienceProtest-2dc6d98778fa.json")
+set_service_token(Sys.getenv("BIGQUERYCRED"))
 
 get_violent_protest <- function(year, month, day, country){
   fraction_date = signif(strtoi(year) + (strtoi(month) * 30 + strtoi(day))/365, digits=8)
