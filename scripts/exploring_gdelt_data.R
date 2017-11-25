@@ -50,7 +50,7 @@ db_name <- file.path('/Users/BekkBlando/Documents/github/clemson/data_science/pr
 db_conn <- dbConnect(SQLite(), db_name)
 
 # Checkin out the data
-local_data <- dbReadTable(db_conn, 'Events')
+events <- dbReadTable(db_conn, 'Events')
 
 
 # Do Stuff yo

@@ -24,5 +24,13 @@ shinyUI(fluidPage(
   ),
   fluidRow(    
     column(10, dataTableOutput('mentions'))
+  ),
+  fluidRow(    
+    column(10, plotOutput('mentions_to_avgtone')),
+    column(10, plotOutput('goldstein_to_mentions')),
+    column(10, plotOutput('sunflowerplots1')),
+    column(10, plotOutput('sunflowerplots2')),
+    column(10, plotOutput('mentions_and_avgtone')),
+    column(10, plotOutput('eventcode_count'))
   )
 ))

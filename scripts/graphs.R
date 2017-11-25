@@ -1,3 +1,5 @@
+library(ggplot2)
+
 symbols(events$NumMentions, events$AvgTone, circles=events$EventCode, inches=0.35, 
         fg="white", bg="blue", xlab = "Number of Mentions", ylab = "Average Tone") 
 #add in text
@@ -15,15 +17,21 @@ sunflowerplot(events$AvgTone, events$NumMentions)
 sunflowerplot(events$NumMentions, events$NumSources)
 
 #------------------
+
+events$EventCode <- as.factor(events$EventCode)
+
 this_base <- "events"
 
 my_data <- data.frame(
-  event_code = factor(events$EventCode), mentions = data(events$NumMentions)
+  event_code = events$EventCode), mentions = events$NumMentions
 )
-p <- ggplot2::ggplot(my_data, aes(x = event_code, y = mentions)) +
-  geom_bar(stat = "identity", fill = "orange", colours(distinct = TRUE), 
-           width = .02) + scale_y_continuous(breaks = sequence(events$NumMentions)) +
-  labs(x = "Event Code", y = "Number of Mentions") +
+
+p <- ggplot2::ggplot(my_data, aes(event_code, mentions))
+
+  p + geom_bar(stat = "identity", fill = "orange", colors = colors(distinct = TRUE), 
+           width = .02)
+  p + scale_y_continuous(breaks = sequence(events$NumMentions))
+  p + labs(x = "Event Code", y = "Number of Mentions") +
   ggtitle("Number of Mentions per Event Code") +
   theme_bw() +
   theme(panel.grid.major.x = element_blank(),
