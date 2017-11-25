@@ -2,6 +2,7 @@ library(shiny)
 library(leaflet)
 library(plyr)
 library("bigrquery")
+library(countrycode)
 
 # Working on Heroku
 # CSS Styling
@@ -10,15 +11,15 @@ library("bigrquery")
 
 project <- "datascienceprotest"
 
-set_service_token(Sys.getenv("BIGQUERYCRED"))
+set_service_token("DataScienceProtest-2dc6d98778fa.json")
 
-get_violent_protest <- function(year, month){
-  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='141' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
+get_violent_protest <- function(year, month, country){
+  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='141' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")), " and ActionGeo_CountryCode='", paste0(countrycode(country, "country.name.en" ,"fips105")), "'")
   return(query_exec(sql, project = project))
 }
 
 get_non_violent_protest <- function(year, month){
-  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='140' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
+  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='140' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
   return(query_exec(sql, project = project, max_pages = Inf))
 }
 
@@ -79,10 +80,11 @@ shinyServer(function(input, output, session) {
     # Protest Query
 
     if(input$violence == "Violent Protests"){
-      protest <- get_violent_protest(input$year, input$month)
+      protest <- get_violent_protest(input$year, input$month, input$country)
     }else{
-      protest <- get_non_violent_protest(input$year, input$month)
+      protest <- get_non_violent_protest(input$year, input$month, input$country)
     }
+    print("test")
     output$map <- renderLeaflet({
       leaflet() %>%
         addProviderTiles(providers$Stamen.TonerLite,
