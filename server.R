@@ -25,18 +25,29 @@ project <- "datascienceprotest"
 set_service_token(Sys.getenv("BIGQUERYCRED"))
 
 get_violent_protest <- function(year, month, day, country){
-  fraction_date = signif(strtoi(year) + (strtoi(month) * 30 + strtoi(day))/365, digits=8)
-  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='141' and FractionDate=", fraction_date, " and ActionGeo_CountryCode='", paste0(countrycode(country, "country.name.en" ,"fips105")), "'")
-  return(query_exec(sql, project = project))
+  fraction_date = signif(as.numeric(year) + (as.numeric(month) * 30 + as.numeric(day))/365, digits=8)
+  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='145' and FractionDate=", fraction_date, " and ActionGeo_CountryCode='", paste0(countrycode(country, "country.name.en" ,"fips105")), "'")
+  print(sql)
+  
+  query_result = tryCatch({
+    return(query_exec(sql, project = project))
+  }, warning = function(w) {
+    # Put an error message
+  }, error = function(e) {
+    # Put an error message,
+  }, finally = {
+    # Done
+  })
+  return(query_result)
 }
 
 get_non_violent_protest <- function(year, month){
-  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, NumMentions, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='140' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
+  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, NumMentions, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='140' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
   return(query_exec(sql, project = project, max_pages = Inf))
 }
 
 get_protest <- function(global_id){
-  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE GLOBALEVENTID=", global_id)
+  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE GLOBALEVENTID=", global_id)
   return(query_exec(sql, project = project, max_pages = Inf))
 }
 
@@ -155,14 +166,19 @@ shinyServer(function(input, output, session) {
   # Render this map once the google query has been selected
   observeEvent(input$date_submit, {
     # Render Loading Icon
-    click <- input$date_submit
+    click <- input$date
+    
+    date = as.Date(input$date)
+    year = format(date, "%Y")
+    month = format(date, "%m")
+    day = format(date, "%d")
 
     # Protest Query
 
     if(input$violence == "Violent Protests"){
-      protest <- get_violent_protest(input$year, input$month, input$day, input$country)
+      protest <- get_violent_protest(year, month, day, input$country)
     }else{
-      protest <- get_non_violent_protest(input$year, input$month, input$day, input$country)
+      protest <- get_non_violent_protest(year, month, day, input$country)
     }
     
     
@@ -194,7 +210,7 @@ shinyServer(function(input, output, session) {
       return("No Coordinates")
     }
 
-    print(paste0(typeof(non_root_seq)))
+    print(paste0(non_root_seq))
 
     proxy <- leafletProxy("map")
 
