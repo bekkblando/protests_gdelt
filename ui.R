@@ -48,8 +48,4 @@ shinyUI(
       column(10, plotOutput('mentions_and_avgtone')),
       column(10, plotOutput('eventcode_count'))
     )
-<<<<<<< HEAD
-=======
->>>>>>> Stashed changes
->>>>>>> unstashed changes
 ))
