@@ -2,6 +2,7 @@ library(shiny)
 library(leaflet)
 library(plyr)
 library(countrycode)
+library(shinyWidgets)
 
 shinyUI(
   fluidPage(
@@ -28,6 +29,9 @@ shinyUI(
       column(12, leafletOutput("map"))
     ),
     fluidRow(
+      column(12, switchInput(inputId = "analyze", label="Analyze Protest", value = FALSE))
+    ),
+    fluidRow(
       column(10, dataTableOutput('selected_table'))
     ),
     fluidRow(
@@ -44,4 +48,8 @@ shinyUI(
       column(10, plotOutput('mentions_and_avgtone')),
       column(10, plotOutput('eventcode_count'))
     )
+<<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
+>>>>>>> unstashed changes
 ))

@@ -42,12 +42,12 @@ get_violent_protest <- function(year, month, day, country){
 }
 
 get_non_violent_protest <- function(year, month){
-  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, NumMentions, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='140' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
+  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, NumMentions, FractionDate, SOURCEURL FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='140' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
   return(query_exec(sql, project = project, max_pages = Inf))
 }
 
 get_protest <- function(global_id){
-  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE GLOBALEVENTID=", global_id)
+  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, FractionDate, SOURCEURL FROM [gdelt-bq:gdeltv2.events] WHERE GLOBALEVENTID=", global_id)
   return(query_exec(sql, project = project, max_pages = Inf))
 }
 
@@ -190,18 +190,26 @@ shinyServer(function(input, output, session) {
 
         # clearGroup("sequence")
         addAwesomeMarkers(protest$ActionGeo_Long, protest$ActionGeo_Lat, layerId=protest$GLOBALEVENTID,
-                          icon=ricons, popup = protest$Actor1Name, group = "root_events")
+                          icon=ricons, popup = paste0(protest$GLOBALEVENTID), group = "root_events")
     })
   })
 
   # Show popup on click
   observeEvent(input$map_marker_click, {
     click <- input$map_marker_click
+    
+    root_protest = get_protest(click$id)
+    non_root_seq_mentions = get_mentions(click$id)
+    output$selected_table <- renderDataTable(data.frame(root_protest))
+    output$mentions <- renderDataTable(data.frame(non_root_seq_mentions))
+    
+    # Just Exploring if analyze is false
+    if(!input$analyze){
+      return(FALSE)
+    }
 
     # Show non-root events based on the violent protest
-    root_protest = get_protest(click$id)
     non_root_seq = get_sequence(root_protest)
-    non_root_seq_mentions = get_mentions(click$id)
 
 
     if(identical(non_root_seq$ActionGeo_Long, numeric(0)) || length(sequence) == 0){
@@ -213,6 +221,9 @@ shinyServer(function(input, output, session) {
     print(paste0(non_root_seq))
 
     proxy <- leafletProxy("map")
+    
+    
+    print(paste0(non_root_seq))
 
     # Hide all the root events
     clearGroup(proxy, "root_events")
@@ -227,8 +238,6 @@ shinyServer(function(input, output, session) {
 
     # Render more notes if a violent protest exist within this
     output$seq_table <- renderDataTable(data.frame(non_root_seq))
-    output$selected_table <- renderDataTable(data.frame(root_protest))
-    output$mentions <- renderDataTable(data.frame(non_root_seq_mentions))
     # Render Sadie's Graphs
     output$mentions_to_avgtone <- mentions_to_avgtone(non_root_seq)
     output$goldstein_to_mentions <- goldstein_to_mentions(non_root_seq)
@@ -236,5 +245,6 @@ shinyServer(function(input, output, session) {
     output$sunflowerplots2 <- sunflowerplots1(non_root_seq)
     output$mentions_and_avgtone <- mentions_and_avgtone(non_root_seq)
     output$mentions_and_avgtone <- eventcode_count(non_root_seq)
+    return(proxy)
   })
 })
