@@ -29,6 +29,7 @@ get_sequence <- function(violent_protest){
   # Above Average NumMentions for each event code
   # Summary Statistics - Average Goldstien, AvgTone, NumMentions per EventCode 
   
+  sequence = query_exec(sql, project = project, max_pages = Inf)
   return(sequence)
 }
 
