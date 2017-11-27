@@ -26,11 +26,42 @@ get_sequence <- function(violent_protest){
   
   # TODO
   # Average tone maximum for occurances - violent protests
-  # Above Average NumMentions for each event code
-  # Summary Statistics - Average Goldstien, AvgTone, NumMentions per EventCode 
+  # Above Average NumMentions for each event code - needs to be troubleshot, KA POW
+  # Summary Statistics - Average Goldstien, AvgTone, NumMentions per EventCod e - Should be done?
   
   sequence = query_exec(sql, project = project, max_pages = Inf)
-  return(sequence)
+  
+  # To remove minor violent occurences:
+  # minor_violence <- subset(sequence, EventRootCode == 14 & (AvgTone >= -50 || AvgTone <= 50))
+  sequence <- sequence[!(sequence$EventRootCode == 14 & (AvgTone >= -50 || AvgTone <= 50))]
+  
+  # aggregate
+  AvgMen <- aggregate(x = sequence$NumMentions, by = list(sequence$EventRootCode), FUN = mean)
+  
+  # Print to double check what aggregate did
+  print(AvgMen)
+  
+  # Create subsets of the sequence that have average or above average number of mentions
+  non_root_evTen <- subset(sequence, EventRootCode = 10 & NumMention >= floor(AvgMen[1,1]))
+  
+  #evElv_AvgMen <- aggregate
+  non_root_evElv <- subset(sequence, EventRootCode = 11 & NumMention >= floor(AvgMen[2,1]))
+  
+  #evTwv_AvgMen
+  non_root_evTwv <- subset(sequence, EventRootCode = 12 & NumMention >= floor(AvgMen[3,1]))
+  
+  #evThr_AvgMen
+  non_root_evThr <- subset(sequence, EventRootCode = 13 & NumMention >= floor(AvgMen[4,1]))
+  
+  #evFrt_AvgMen
+  non_root_evFrt <- subset(sequence, EventRootCode = 14 & NumMention >= floor(AvgMen[5,1]))
+  
+  non_root_sequence <- rbind(non_root_evTen, non_root_evElv, non_root_evTwv, non_root_evThr, non_root_evFrt)
+  
+  # Get the basic stats?
+  seq_Stats <- apply(non_root_sequence, 2, mean)
+  
+  return(non_root_sequence, seq_Stats)
 }
 
 
