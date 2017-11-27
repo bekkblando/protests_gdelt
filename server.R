@@ -23,9 +23,9 @@ library(scales)
 # Download button for a report on what's on the page
 
 
-project <- "datascienceprotest" 
+project <- "pvp1-182616" 
 
-set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
+# set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
 
 above_average_mentions <- function(row, AvgMen){
   return(AvgMen[which(AvgMen$Group.1 == row["EventRootCode"]),]$x <= as.integer(row["NumMentions"]))
@@ -213,18 +213,6 @@ avgtone_quadclass <- function(events) {
   return(renderPlot(a))
 }
 
-
-avgtone_time <- function(events) {
-  
-  plot_data2 <- data.frame(
-    time = events$FractionDate,
-    tone = events$AvgTone)
-  
-  t <- ggplot2::ggplot(plot_data2, aes(time, tone)) +
-    #scale_x_date(format = "%d/%b") + 
-    xlab("Fraction Date") + ylab("Average Tone") +
-    geom_line()
-}
 
 # End Rendering Saidie's Graphs my hellsink
 
