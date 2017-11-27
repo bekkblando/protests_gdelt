@@ -23,7 +23,7 @@ library(DT)
 
 project <- "datascienceprotest"
 
-set_service_token(Sys.getenv("BIGGOOGLECRED"))
+set_service_token(Sys.getenv("BIGQUERYCRED"))
 
 get_violent_protest <- function(year, month, day, country){
   fraction_date = signif(as.numeric(year) + (as.numeric(month) * 30 + as.numeric(day))/365, digits=8)
