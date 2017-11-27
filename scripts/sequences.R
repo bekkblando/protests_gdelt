@@ -1,6 +1,13 @@
 library("bigrquery")
+library(dplyr)
+
 
 project <- "datascienceprotest"
+
+above_average_mentions <- function(row, AvgMen){
+  return(AvgMen[which(AvgMen$Group.1 == row["EventRootCode"]),]$x <= as.integer(row["NumMentions"]))
+}
+
 
 get_sequence <- function(violent_protest){
   violent_actor1 = violent_protest$Actor1Name
@@ -26,12 +33,31 @@ get_sequence <- function(violent_protest){
   
   # TODO
   # Average tone maximum for occurances - violent protests
-  # Above Average NumMentions for each event code
-  # Summary Statistics - Average Goldstien, AvgTone, NumMentions per EventCode 
+  # Above Average NumMentions for each event code - needs to be troubleshot, KA POW
+  # Summary Statistics - Average Goldstien, AvgTone, NumMentions per EventCod e - Should be done?
   
   sequence = query_exec(sql, project = project, max_pages = Inf)
-  return(sequence)
+  
+  # To remove minor violent occurences:
+  # minor_violence <- subset(sequence, EventRootCode == 14 & (AvgTone >= -50 || AvgTone <= 50))
+  
+  
+  
+  # sequence <- sequence[!(sequence$EventRootCode == 14 & (sequence$AvgTone >= -50 || sequence$AvgTone <= 50))]
+  
+  # aggregate
+  AvgMen <- aggregate(x = sequence$NumMentions, by = list(sequence$EventRootCode), FUN = mean)
+  
+  # Create subsets of the sequence that have average or above average number of mentions
+  sequence$AboveAvgMen <- apply(sequence, 1, function(row) { above_average_mentions(row, AvgMen) })
+  
+  non_root_sequence <- filter(sequence, AboveAvgMen == TRUE)
+
+  # Get the basic stats?
+  # seq_Stats <- aggregate(non_root_sequence, 2, mean)
+  
+  return(non_root_sequence)
 }
 
 
-non_violent <- get_sequence(protests[10,])
+non_violent <- get_sequence(events[11,])
