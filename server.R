@@ -10,13 +10,14 @@ library(DT)
   # Working on Heroku - Bekk - Sunday - 30 min
   # CSS Styling - Bekk - Sunday - 2 Hours
   # Graphs Per Sequence - Sadie 
+    # Events in Order
   # Holistic Statistics - Sadie/Bekk - 3 Hours
     # Different types of protests increasing over time - Saide/Bekk
     # AvgTone and Goldstein Scale Per year - Sadie/Bekk
 
 # Need to be done
-  # Fix crashing - Bekk
-  # More Specific Sequences - Tyler and Bjerken
+  # Fix crashing - Bekk - Done
+  # More Specific Sequences - Tyler and Bjerken - Complete
 
 # Download button for a report on what's on the page
 
@@ -48,7 +49,7 @@ get_non_violent_protest <- function(year, month){
 }
 
 get_protest <- function(global_id){
-  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, Actor1Geo_FullName, Actor2Geo_FullName, FractionDate, SOURCEURL FROM [gdelt-bq:gdeltv2.events] WHERE GLOBALEVENTID=", global_id)
+  sql <- paste0("SELECT GLOBALEVENTID, FractionDate, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, Actor1Geo_FullName, Actor2Geo_FullName, SOURCEURL FROM [gdelt-bq:gdeltv2.events] WHERE GLOBALEVENTID=", global_id)
   return(query_exec(sql, project = project, max_pages = Inf))
 }
 
@@ -68,7 +69,7 @@ get_sequence <- function(violent_protest){
   lower_date = fractional_date - 45/365
   higher_date = fractional_date + 45/365
 
-  sql <-paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, FractionDate FROM [gdelt-bq:full.events] WHERE EventRootCode in ('10','11','12','13', '14') and FractionDate <=", higher_date ," and FractionDate >=", lower_date)
+  sql <-paste0("SELECT GLOBALEVENTID, FractionDate, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long FROM [gdelt-bq:full.events] WHERE EventRootCode in ('10','11','12','13', '14') and FractionDate <=", higher_date ," and FractionDate >=", lower_date)
 
   # Add a parameter for the actors names
   if(!is.na(violent_actor1)){
@@ -95,11 +96,21 @@ get_sequence <- function(violent_protest){
   
   # TODO
     # Average tone maximum for occurances - violent protests
-    # Above Average NumMentions for each event code
+    # Above Average NumMentions for each event code - DONE
     # Summary Statistics - Average Goldstien, AvgTone, NumMentions per EventCode 
 
   sequence = query_exec(sql, project = project, max_pages = Inf)
-  return(sequence)
+  
+  
+  # aggregate
+  AvgMen <- aggregate(x = sequence$NumMentions, by = list(sequence$EventRootCode), FUN = mean)
+  
+  # Create subsets of the sequence that have average or above average number of mentions
+  sequence$AboveAvgMen <- apply(sequence, 1, function(row) { above_average_mentions(row, AvgMen) })
+  
+  non_root_sequence <- filter(sequence, AboveAvgMen == TRUE)
+  
+  return(non_root_sequence)
 }
 
 # Render Saidie's Graphs Yo

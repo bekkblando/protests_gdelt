@@ -1,6 +1,13 @@
 library("bigrquery")
+library(dplyr)
+
 
 project <- "datascienceprotest"
+
+above_average_mentions <- function(row, AvgMen){
+  return(AvgMen[which(AvgMen$Group.1 == row["EventRootCode"]),]$x <= as.integer(row["NumMentions"]))
+}
+
 
 get_sequence <- function(violent_protest){
   violent_actor1 = violent_protest$Actor1Name
@@ -33,36 +40,24 @@ get_sequence <- function(violent_protest){
   
   # To remove minor violent occurences:
   # minor_violence <- subset(sequence, EventRootCode == 14 & (AvgTone >= -50 || AvgTone <= 50))
-  sequence <- sequence[!(sequence$EventRootCode == 14 & (AvgTone >= -50 || AvgTone <= 50))]
+  
+  
+  
+  # sequence <- sequence[!(sequence$EventRootCode == 14 & (sequence$AvgTone >= -50 || sequence$AvgTone <= 50))]
   
   # aggregate
   AvgMen <- aggregate(x = sequence$NumMentions, by = list(sequence$EventRootCode), FUN = mean)
   
-  # Print to double check what aggregate did
-  print(AvgMen)
-  
   # Create subsets of the sequence that have average or above average number of mentions
-  non_root_evTen <- subset(sequence, EventRootCode = 10 & NumMention >= floor(AvgMen[1,1]))
+  sequence$AboveAvgMen <- apply(sequence, 1, function(row) { above_average_mentions(row, AvgMen) })
   
-  #evElv_AvgMen <- aggregate
-  non_root_evElv <- subset(sequence, EventRootCode = 11 & NumMention >= floor(AvgMen[2,1]))
-  
-  #evTwv_AvgMen
-  non_root_evTwv <- subset(sequence, EventRootCode = 12 & NumMention >= floor(AvgMen[3,1]))
-  
-  #evThr_AvgMen
-  non_root_evThr <- subset(sequence, EventRootCode = 13 & NumMention >= floor(AvgMen[4,1]))
-  
-  #evFrt_AvgMen
-  non_root_evFrt <- subset(sequence, EventRootCode = 14 & NumMention >= floor(AvgMen[5,1]))
-  
-  non_root_sequence <- rbind(non_root_evTen, non_root_evElv, non_root_evTwv, non_root_evThr, non_root_evFrt)
-  
+  non_root_sequence <- filter(sequence, AboveAvgMen == TRUE)
+
   # Get the basic stats?
-  seq_Stats <- apply(non_root_sequence, 2, mean)
+  # seq_Stats <- aggregate(non_root_sequence, 2, mean)
   
-  return(non_root_sequence, seq_Stats)
+  return(non_root_sequence)
 }
 
 
-non_violent <- get_sequence(protests[10,])
+non_violent <- get_sequence(events[11,])
