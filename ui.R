@@ -63,8 +63,7 @@ shinyUI(
         column(10, plotOutput('sunflowerplots2')),
         column(10, plotOutput('mentions_and_avgtone')),
         column(10, plotOutput('eventcode_count')),
-        column(10, plotOutput('avgtone_quadclass')),
-        column(10, plotOutput('avgtone_time'))
+        column(10, plotOutput('avgtone_quadclass'))
       )
     )
   )

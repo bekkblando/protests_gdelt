@@ -23,9 +23,9 @@ library(scales)
 # Download button for a report on what's on the page
 
 
-project <- "pvp1-182616" 
+project <- "datascienceprotest" 
 
-#set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
+set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
 
 get_violent_protest <- function(year, month, day, country){
   fraction_date = signif(as.numeric(year) + (as.numeric(month) * 30 + as.numeric(day))/365, digits=8)
@@ -321,7 +321,6 @@ shinyServer(function(input, output, session) {
     output$mentions_and_avgtone <- mentions_and_avgtone(non_root_seq)
     output$eventcode_count <- eventcode_count(non_root_seq)
     output$avgtone_quadclass <- avgtone_quadclass(non_root_seq)
-    output$avgtone_time <- avgtone_time(non_root_seq)
     
   })
 })
