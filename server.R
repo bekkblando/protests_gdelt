@@ -4,12 +4,13 @@ library(plyr)
 library("bigrquery")
 library(countrycode)
 library("ggplot2")
+library(DT)
 
 # High Leverage - Low Cost
-  # Working on Heroku - Bekk - Sunday
-  # CSS Styling - Bekk - Sunday
-  # Graphs Per Sequence - Sadie
-  # Holistic Statistics - Sadie/Bekk
+  # Working on Heroku - Bekk - Sunday - 30 min
+  # CSS Styling - Bekk - Sunday - 2 Hours
+  # Graphs Per Sequence - Sadie 
+  # Holistic Statistics - Sadie/Bekk - 3 Hours
     # Different types of protests increasing over time - Saide/Bekk
     # AvgTone and Goldstein Scale Per year - Sadie/Bekk
 
@@ -22,11 +23,11 @@ library("ggplot2")
 
 project <- "datascienceprotest"
 
-set_service_token(Sys.getenv("BIGQUERYCRED"))
+set_service_token("DataScienceProtest-2dc6d98778fa.json")
 
 get_violent_protest <- function(year, month, day, country){
   fraction_date = signif(as.numeric(year) + (as.numeric(month) * 30 + as.numeric(day))/365, digits=8)
-  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='145' and FractionDate=", fraction_date, " and ActionGeo_CountryCode='", paste0(countrycode(country, "country.name.en" ,"fips105")), "'")
+  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, Actor1Geo_FullName, Actor2Geo_FullName, EventCode, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode LIKE '145' and FractionDate=", fraction_date, " and ActionGeo_CountryCode='", paste0(countrycode(country, "country.name.en" ,"fips105")), "'")
   print(sql)
   
   query_result = tryCatch({
@@ -47,7 +48,7 @@ get_non_violent_protest <- function(year, month){
 }
 
 get_protest <- function(global_id){
-  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, FractionDate, SOURCEURL FROM [gdelt-bq:gdeltv2.events] WHERE GLOBALEVENTID=", global_id)
+  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, Actor1Geo_FullName, Actor2Geo_FullName, FractionDate, SOURCEURL FROM [gdelt-bq:gdeltv2.events] WHERE GLOBALEVENTID=", global_id)
   return(query_exec(sql, project = project, max_pages = Inf))
 }
 
@@ -60,21 +61,45 @@ get_mentions <- function(global_id){
 get_sequence <- function(violent_protest){
   violent_actor1 = violent_protest$Actor1Name
   violent_actor2 = violent_protest$Actor2Name
+  violent_actor1_geo = violent_protest$Actor1Geo_FullName
+  violent_actor2_geo = violent_protest$Actor2Geo_FullName
   fractional_date = violent_protest$FractionDate
 
   lower_date = fractional_date - 45/365
   higher_date = fractional_date + 45/365
 
   sql <-paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, FractionDate FROM [gdelt-bq:full.events] WHERE EventRootCode in ('10','11','12','13', '14') and FractionDate <=", higher_date ," and FractionDate >=", lower_date)
+
+  # Add a parameter for the actors names
   if(!is.na(violent_actor1)){
     sql <- paste0(sql, " and Actor1Name='", violent_actor1, "'")
+  }else{
+    sql <- paste0(sql, " and Actor1Name is NULL")
   }
   if(!is.na(violent_actor2)){
     sql <- paste0(sql, " and Actor2Name='", violent_actor2, "'")
+  }else{
+    sql <- paste0(sql, " and Actor2Name is NULL")
   }
+  
+  # Add parameter for the violent actor geo
+  if(!is.na(violent_actor1_geo)){
+    sql <- paste0(sql, " and Actor1Geo_FullName='", violent_actor1_geo, "'")
+  }
+  if(!is.na(violent_actor2_geo)){
+    sql <- paste0(sql, " and Actor2Geo_FullName='", violent_actor2_geo, "'")
+  }
+  
   print(sql)
+  
+  
+  # TODO
+    # Average tone maximum for occurances - violent protests
+    # Above Average NumMentions for each event code
+    # Summary Statistics - Average Goldstien, AvgTone, NumMentions per EventCode 
 
-  return(query_exec(sql, project = project, max_pages = Inf))
+  sequence = query_exec(sql, project = project, max_pages = Inf)
+  return(sequence)
 }
 
 # Render Saidie's Graphs Yo
@@ -141,10 +166,6 @@ eventcode_count <- function(events){
 # End Rendering Saidie's Graphs my hellsink
 
 
-
-
-
-
 ricons <- awesomeIcons(
   icon = 'ios-close',
   iconColor = 'black',
@@ -200,12 +221,12 @@ shinyServer(function(input, output, session) {
     
     root_protest = get_protest(click$id)
     non_root_seq_mentions = get_mentions(click$id)
-    output$selected_table <- renderDataTable(data.frame(root_protest))
-    output$mentions <- renderDataTable(data.frame(non_root_seq_mentions))
+    output$selected_table <- renderDataTable(data.frame(root_protest), extensions="Responsive")
+    output$mentions <- renderDataTable(data.frame(non_root_seq_mentions), extensions="Responsive")
     
     # Just Exploring if analyze is false
     if(!input$analyze){
-      return(FALSE)
+      return("Exploring the data")
     }
 
     # Show non-root events based on the violent protest
@@ -218,13 +239,8 @@ shinyServer(function(input, output, session) {
       return("No Coordinates")
     }
 
-    print(paste0(non_root_seq))
-
     proxy <- leafletProxy("map")
     
-    
-    print(paste0(non_root_seq))
-
     # Hide all the root events
     clearGroup(proxy, "root_events")
     clearGroup(proxy, "sequence")
@@ -235,9 +251,9 @@ shinyServer(function(input, output, session) {
     # Mark the root events as a different color
     proxy %>% addAwesomeMarkers(root_protest$ActionGeo_Long, root_protest$ActionGeo_Lat, layerId=root_protest$GLOBALEVENTID,
                                 icon=ricons, popup = root_protest$Actor1Name, group = "root_events")
-
+  
     # Render more notes if a violent protest exist within this
-    output$seq_table <- renderDataTable(data.frame(non_root_seq))
+    output$seq_table <- renderDataTable(data.frame(non_root_seq), extensions="Responsive")
     # Render Sadie's Graphs
     output$mentions_to_avgtone <- mentions_to_avgtone(non_root_seq)
     output$goldstein_to_mentions <- goldstein_to_mentions(non_root_seq)
@@ -245,6 +261,5 @@ shinyServer(function(input, output, session) {
     output$sunflowerplots2 <- sunflowerplots1(non_root_seq)
     output$mentions_and_avgtone <- mentions_and_avgtone(non_root_seq)
     output$mentions_and_avgtone <- eventcode_count(non_root_seq)
-    return(proxy)
   })
 })
