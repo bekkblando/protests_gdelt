@@ -4,6 +4,7 @@ library(plyr)
 library("bigrquery")
 library(countrycode)
 library("ggplot2")
+library(scales)
 
 # High Leverage - Low Cost
   # Working on Heroku - Bekk - Sunday
@@ -20,9 +21,9 @@ library("ggplot2")
 # Download button for a report on what's on the page
 
 
-project <- "datascienceprotest"
+project <- "pvp1-182616" 
 
-set_service_token("DataScienceProtest-2dc6d98778fa.json")
+#set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
 
 get_violent_protest <- function(year, month, country){
   sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='141' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")), " and ActionGeo_CountryCode='", paste0(countrycode(country, "country.name.en" ,"fips105")), "'")
@@ -68,23 +69,37 @@ get_sequence <- function(violent_protest){
 # Render Saidie's Graphs Yo
 
 mentions_to_avgtone <- function(events){
-  return(renderPlot(symbols(events$NumMentions, events$AvgTone, circles=events$EventCode, inches=0.35, 
-          fg="white", bg="blue", xlab = "Number of Mentions", ylab = "Average Tone")))
+  return(renderPlot(symbols(events$GoldsteinScale, events$AvgTone, 
+          squares=sqrt(events$NumMentions), inches=0.85, fg="black", bg="maroon2", 
+          xlab = "Goldstein Scale", ylab = "Average Tone", 
+          main = "Number of Mentions by Goldstein Scale and Average Tone")))
 }
 
 goldstein_to_mentions <- function(events){
-  return(renderPlot(symbols(events$GoldsteinScale, events$NumMentions, circles = events$IsRootEvent,
-          inches=0.15, fg="white", bg="red", xlab = "Goldstein Scale", 
-          ylab = "Number of Mentions")))
+  return(renderPlot(symbols(events$GoldsteinScale, events$QuadClass, 
+          circles = rescale(events$AvgTone, to = c(0,200)), inches=0.45, 
+          fg="black", bg="slateblue2", xlab = "Goldstein Scale", 
+          ylab = "Quad Class", 
+          main = "Average Tone by Goldstein Scale and Quad Class" )))
+}
+
+code_tone <- function(events) {
+  return(renderPlot(symbols(events$EventCode, events$NumMentions, 
+          circles = rescale(events$AvgTone, to = c(0,200)), inches=0.35,
+          fg = "darkblue", bg = "slateblue1", xlab = "Event Code",
+          ylab = "Number of Mentions", 
+          main = "Average Tone by Event Code and Number of Mentions")))
 }
 
 sunflowerplots1 <- function(events){
-  return(renderPlot(sunflowerplot(events$AvgTone, events$NumMentions)))
+  return(renderPlot(sunflowerplot(events$AvgTone, events$NumMentions, xlab = "Average Tone",
+          ylab = "Number of Mentions", col = "blue")))
   
 }
 
 sunflowerplots2 <- function(events){
-  return(renderPlot(sunflowerplot(events$NumMentions, events$NumSources)))
+  return(renderPlot(sunflowerplot(events$AvgTone, events$GoldsteinScale, xlab = "Average Tone",
+         ylab = "Goldstein Scale")))
   
 }
 
@@ -99,32 +114,64 @@ mentions_and_avgtone <- function(events){
     theme_bw() +
     theme(panel.grid.major.x = element_blank(),
           panel.grid.major.y = element_line(colour = "grey50"),
-          plot.title = element_text(size = rel(1.5), face = "bold", 
-                                    vjust = 1.5), axis.title = element_text(face = "bold"))
+          plot.title = element_text(size = rel(2), face = "bold", vjust = 1.5), 
+          axis.title = element_text(face = "bold")
+    )
+  
   return(renderPlot(p))
 
 }
 
 eventcode_count <- function(events){
 
-  pie_data <- data.frame(
-    variable = events$EventCode,
-    value = events$IsRootEvent)
+  bar_data <- data.frame(
+    Event_Code = events$EventCode,
+    Average_Tone = events$AvgTone)
   
-    p <- ggplot2::ggplot(pie_data, aes(x = variable, y= value, 
-                                       fill=variable)) + 
-    geom_bar(width = 1, colour ="black", stat="identity") +
-    ggtitle("Is a Root Event Based on Event Code") +
-    theme_bw() + theme(panel.grid.major = element_blank(), 
-                       panel.border = element_blank(),
-                       plot.title = element_text(size = rel(1.5), face = "bold"),
-                       axis.title = element_blank(), 
-                       axis.text = element_blank(),
-                       axis.ticks = element_blank(),
-                       legend.text = element_text(events$EventCode))
-   return(renderPlot(p))
+    b <- ggplot2::ggplot(bar_data, aes(x = Event_Code, y= Average_Tone, 
+                                       fill=Event_Code)) + 
+    geom_bar(width = 1, stat="identity", show.legend = TRUE) + 
+    labs(x = "Event Code", y = "Average Tone") + 
+      labs(title = "Average Tone Based on Event Code") +
+    theme_light() + 
+      theme(panel.grid = element_line(colour = "grey50"),
+            panel.border = element_rect(linetype = "solid", fill = NA),
+            plot.title = element_text(size = rel(2), face = "bold"),
+            axis.title = element_text(face = "bold"), 
+            legend.text = element_text(events$EventCode)
+      )
+    
+   return(renderPlot(b))
 }
 
+
+avgtone_quadclass <- function(events) {
+  
+  plot_data1 <- data.frame(
+    tone = events$AvgTone,
+    quad = events$QuadClass)
+  
+  a <- ggplot2::ggplot(plot_data1, aes(x=tone, y=quad, fill = quad)) +
+    geom_point(color="firebrick") +
+    theme_light() + theme( panel.grid = element_line(colour = "grey50"),
+                           panel.border = element_rect(linetype = "solid", fill = NA),
+                           plot.title = element_text(size = rel(1.5), face = "bold"))
+  
+  return(renderPlot(a))
+}
+
+
+avgtone_time <- function(events) {
+  
+  plot_data2 <- data.frame(
+    time = events$FractionDate,
+    tone = events$AvgTone)
+  
+  t <- ggplot2::ggplot(plot_data2, aes(time, tone)) +
+    #scale_x_date(format = "%d/%b") + 
+    xlab("Fraction Date") + ylab("Average Tone") +
+    geom_line()
+}
 
 # End Rendering Saidie's Graphs my hellsink
 
@@ -215,9 +262,13 @@ shinyServer(function(input, output, session) {
     # Render Sadie's Graphs
     output$mentions_to_avgtone <- mentions_to_avgtone(non_root_seq)
     output$goldstein_to_mentions <- goldstein_to_mentions(non_root_seq)
+    output$code_tone <- code_tone(non_root_seq)
     output$sunflowerplots1 <- sunflowerplots1(non_root_seq)
-    output$sunflowerplots2 <- sunflowerplots1(non_root_seq)
+    output$sunflowerplots2 <- sunflowerplots2(non_root_seq)
     output$mentions_and_avgtone <- mentions_and_avgtone(non_root_seq)
-    output$mentions_and_avgtone <- eventcode_count(non_root_seq)
+    output$eventcode_count <- eventcode_count(non_root_seq)
+    output$avgtone_quadclass <- avgtone_quadclass(non_root_seq)
+    output$avgtone_time <- avgtone_time(non_root_seq)
+    
   })
 })
