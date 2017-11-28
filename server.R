@@ -26,7 +26,7 @@ library(dplyr)
 
 project <- "datascienceprotest" 
 
-set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
+set_service_token(Sys.getenv("BIGQUERYCRED")) #change this
 
 above_average_mentions <- function(row, AvgMen){
   return(AvgMen[which(AvgMen$Group.1 == row["EventRootCode"]),]$x <= as.integer(row["NumMentions"]))
