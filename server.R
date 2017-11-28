@@ -26,7 +26,7 @@ library(dplyr)
 
 project <- "pvp1-182616" 
 
-# set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
+# set_service_token("DataScienceProtest-2dc6d98778fa.json")
 
 above_average_mentions <- function(row, AvgMen){
   return(AvgMen[which(AvgMen$Group.1 == row["EventRootCode"]),]$x <= as.integer(row["NumMentions"]))
@@ -129,14 +129,6 @@ mentions_to_avgtone <- function(events){
           main = "Number of Mentions by Goldstein Scale and Average Tone")))
 }
 
-goldstein_to_mentions <- function(events){
-  return(renderPlot(symbols(events$GoldsteinScale, events$QuadClass, 
-          circles = rescale(events$AvgTone, to = c(0,200)), inches=0.45, 
-          fg="black", bg="slateblue2", xlab = "Goldstein Scale", 
-          ylab = "Quad Class", 
-          main = "Average Tone by Goldstein Scale and Quad Class" )))
-}
-
 code_tone <- function(events) {
   return(renderPlot(symbols(events$EventCode, events$NumMentions, 
           circles = rescale(events$AvgTone, to = c(0,200)), inches=0.35,
@@ -146,34 +138,15 @@ code_tone <- function(events) {
 }
 
 sunflowerplots1 <- function(events){
+  
   return(renderPlot(sunflowerplot(events$AvgTone, events$NumMentions, xlab = "Average Tone",
           ylab = "Number of Mentions", col = "blue")))
-  
 }
 
 sunflowerplots2 <- function(events){
+  
   return(renderPlot(sunflowerplot(events$AvgTone, events$GoldsteinScale, xlab = "Average Tone",
          ylab = "Goldstein Scale")))
-  
-}
-
-
-mentions_and_avgtone <- function(events){
-  
-  p <- ggplot2::ggplot(events, aes(x = EventCode, y = NumMentions)) +
-    geom_bar(stat = "identity", fill = "orange", 
-             width = .02) + scale_y_continuous(breaks = sequence(sum(events$NumMentions))) +
-    labs(x = "Event Code", y = "Number of Mentions") +
-    ggtitle("Number of Mentions per Event Code") +
-    theme_bw() +
-    theme(panel.grid.major.x = element_blank(),
-          panel.grid.major.y = element_line(colour = "grey50"),
-          plot.title = element_text(size = rel(2), face = "bold", vjust = 1.5), 
-          axis.title = element_text(face = "bold")
-    )
-  
-  return(renderPlot(p))
-
 }
 
 eventcode_count <- function(events){
@@ -182,7 +155,7 @@ eventcode_count <- function(events){
     Event_Code = events$EventCode,
     Average_Tone = events$AvgTone)
   
-    b <- ggplot2::ggplot(bar_data, aes(x = Event_Code, y= Average_Tone, 
+    b <- ggplot2::ggplot(bar_data, aes(x = Event_Code, y= mean(Average_Tone), 
                                        fill=Event_Code)) + 
     geom_bar(width = 1, stat="identity", show.legend = TRUE) + 
     labs(x = "Event Code", y = "Average Tone") + 
@@ -198,21 +171,6 @@ eventcode_count <- function(events){
    return(renderPlot(b))
 }
 
-
-avgtone_quadclass <- function(events) {
-  
-  plot_data1 <- data.frame(
-    tone = events$AvgTone,
-    quad = events$QuadClass)
-  
-  a <- ggplot2::ggplot(plot_data1, aes(x=tone, y=quad, fill = quad)) +
-    geom_point(color="firebrick") +
-    theme_light() + theme( panel.grid = element_line(colour = "grey50"),
-                           panel.border = element_rect(linetype = "solid", fill = NA),
-                           plot.title = element_text(size = rel(1.5), face = "bold"))
-  
-  return(renderPlot(a))
-}
 
 
 # End Rendering Saidie's Graphs my hellsink
@@ -308,13 +266,10 @@ shinyServer(function(input, output, session) {
     output$seq_table <- renderDataTable(data.frame(non_root_seq), extensions="Responsive")
     # Render Sadie's Graphs
     output$mentions_to_avgtone <- mentions_to_avgtone(non_root_seq)
-    output$goldstein_to_mentions <- goldstein_to_mentions(non_root_seq)
     output$code_tone <- code_tone(non_root_seq)
     output$sunflowerplots1 <- sunflowerplots1(non_root_seq)
     output$sunflowerplots2 <- sunflowerplots2(non_root_seq)
-    output$mentions_and_avgtone <- mentions_and_avgtone(non_root_seq)
     output$eventcode_count <- eventcode_count(non_root_seq)
-    output$avgtone_quadclass <- avgtone_quadclass(non_root_seq)
     
   })
 })
