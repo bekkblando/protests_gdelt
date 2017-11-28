@@ -245,6 +245,11 @@ nicons <- awesomeIcons(
 
 
 shinyServer(function(input, output, session) {
+  
+  stayAlive <- reactiveTimer(intervalMs = 1000)
+  observe({
+    stayAlive()
+  })
 
   # Render Year Picker
     # When year is selected, do google query for root events within the year
