@@ -6,6 +6,7 @@ library(countrycode)
 library("ggplot2")
 library(DT)
 library(scales)
+library(dplyr)
 
 # High Leverage - Low Cost
   # Working on Heroku - Bekk - Sunday - 30 min
