@@ -290,7 +290,7 @@ shinyServer(function(input, output, session) {
     click <- input$map_marker_click
     
     root_protest = get_protest(click$id)
-    output$selected_table <- renderDataTable(data.frame(root_protest), extensions="Responsive")
+    output$selected_table <- renderDataTable(data.frame(root_protest))
     non_root_seq_mentions = get_mentions(click$id)
     output$mentions <- renderDataTable(data.frame(non_root_seq_mentions), extensions="Responsive")
     
