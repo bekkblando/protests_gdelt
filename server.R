@@ -16,18 +16,16 @@ library(dplyr)
   # Holistic Statistics - Sadie/Bekk - 3 Hours
     # Different types of protests increasing over time - Saide/Bekk
     # AvgTone and Goldstein Scale Per year - Sadie/Bekk
+  # Explore Protests By Month
 
 # Need to be done
   # Fix crashing - Bekk - Done
   # More Specific Sequences - Tyler and Bjerken - Complete
 
-# Download button for a report on what's on the page
-
-
 project <- "datascienceprotest" 
 
-# set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
-set_service_token(Sys.getenv("BIGQUERYCRED"))
+set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
+# set_service_token(Sys.getenv("BIGQUERYCRED"))
 
 above_average_mentions <- function(row, AvgMen){
   return(AvgMen[which(AvgMen$Group.1 == row["EventRootCode"]),]$x <= as.integer(row["NumMentions"]))
@@ -253,6 +251,7 @@ shinyServer(function(input, output, session) {
     stayAlive()
   })
 
+
   # Render Year Picker
     # When year is selected, do google query for root events within the year
   # Render this map once the google query has been selected
@@ -334,6 +333,5 @@ shinyServer(function(input, output, session) {
     output$mentions_and_avgtone <- mentions_and_avgtone(non_root_seq)
     output$eventcode_count <- eventcode_count(non_root_seq)
     output$avgtone_quadclass <- avgtone_quadclass(non_root_seq)
-    
   })
 })
