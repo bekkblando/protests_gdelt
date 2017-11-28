@@ -26,7 +26,8 @@ library(dplyr)
 
 project <- "datascienceprotest" 
 
-set_service_token(Sys.getenv("BIGQUERYCRED")) #change this
+# set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
+set_service_token(Sys.getenv("BIGQUERYCRED"))
 
 above_average_mentions <- function(row, AvgMen){
   return(AvgMen[which(AvgMen$Group.1 == row["EventRootCode"]),]$x <= as.integer(row["NumMentions"]))
@@ -290,9 +291,9 @@ shinyServer(function(input, output, session) {
     click <- input$map_marker_click
     
     root_protest = get_protest(click$id)
-    output$selected_table <- renderDataTable(data.frame(root_protest))
+    output$selected_table <- renderTable(data.frame(root_protest), extensions="Responsive")
     non_root_seq_mentions = get_mentions(click$id)
-    output$mentions <- renderDataTable(data.frame(non_root_seq_mentions), extensions="Responsive")
+    output$mentions <- renderTable(data.frame(non_root_seq_mentions), extensions="Responsive")
     
     # Just Exploring if analyze is false
     if(!input$analyze){
@@ -323,7 +324,7 @@ shinyServer(function(input, output, session) {
                                 icon=ricons, popup = root_protest$Actor1Name, group = "root_events")
   
     # Render more notes if a violent protest exist within this
-    output$seq_table <- renderDataTable(data.frame(non_root_seq), extensions="Responsive")
+    output$seq_table <- renderTable(data.frame(non_root_seq), extensions="Responsive")
     # Render Sadie's Graphs
     output$mentions_to_avgtone <- mentions_to_avgtone(non_root_seq)
     output$goldstein_to_mentions <- goldstein_to_mentions(non_root_seq)

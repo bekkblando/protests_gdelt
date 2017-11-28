@@ -47,13 +47,13 @@ shinyUI(
         column(12, switchInput(inputId = "analyze", label="Analyze Protest", value = FALSE))
       ),
       fluidRow(
-          column(10, dataTableOutput('selected_table'))
+          column(10, tableOutput('selected_table'))
       ),
       fluidRow(
-          column(10, dataTableOutput('seq_table'))
+          column(10, tableOutput('seq_table'))
       ),
       fluidRow(    
-          column(10, dataTableOutput('mentions'))
+          column(10, tableOutput('mentions'))
       ),
       fluidRow(
         column(10, plotOutput('mentions_to_avgtone')),
