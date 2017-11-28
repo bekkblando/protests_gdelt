@@ -26,7 +26,7 @@ library(dplyr)
 
 project <- "datascienceprotest" 
 
-set_service_token(Sys.getenv("BIGQUERYCRED"))
+set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
 
 above_average_mentions <- function(row, AvgMen){
   return(AvgMen[which(AvgMen$Group.1 == row["EventRootCode"]),]$x <= as.integer(row["NumMentions"]))
@@ -284,8 +284,8 @@ shinyServer(function(input, output, session) {
     click <- input$map_marker_click
     
     root_protest = get_protest(click$id)
-    non_root_seq_mentions = get_mentions(click$id)
     output$selected_table <- renderDataTable(data.frame(root_protest), extensions="Responsive")
+    non_root_seq_mentions = get_mentions(click$id)
     output$mentions <- renderDataTable(data.frame(non_root_seq_mentions), extensions="Responsive")
     
     # Just Exploring if analyze is false
