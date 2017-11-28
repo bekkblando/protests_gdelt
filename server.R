@@ -24,8 +24,8 @@ library(dplyr)
 
 project <- "datascienceprotest" 
 
-set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
-# set_service_token(Sys.getenv("BIGQUERYCRED"))
+# set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
+set_service_token(Sys.getenv("BIGQUERYCRED"))
 
 above_average_mentions <- function(row, AvgMen){
   return(AvgMen[which(AvgMen$Group.1 == row["EventRootCode"]),]$x <= as.integer(row["NumMentions"]))
@@ -47,6 +47,26 @@ get_violent_protest <- function(year, month, day, country){
     # Done
   })
   return(query_result)
+}
+
+get_violent_protest_ex <- function(year, month, country){
+  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode LIKE '145%' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")), " and ActionGeo_CountryCode='", paste0(countrycode(country, "country.name.en" ,"fips105")), "'")
+  query_result = tryCatch({
+    return(query_exec(sql, project = project))
+  }, warning = function(w) {
+    # Put an error message
+  }, error = function(e) {
+    # Put an error message,
+  }, finally = {
+    # Done
+  })
+  return(query_result)
+  return(query_result)
+}
+
+get_non_violent_protest_ex <- function(year, month){
+  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='140' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
+  return(query_exec(sql, project = project, max_pages = Inf))
 }
 
 get_non_violent_protest <- function(year, month){
@@ -249,6 +269,31 @@ shinyServer(function(input, output, session) {
   observe({
     print("Staying Alive Ah Ah Ah Staying Alive")
     stayAlive()
+  })
+  
+  
+  observeEvent(input$explore_date_submit, {
+    # Render Loading Icon
+    click <- input$explore_date_submit
+    
+    # Protest Query
+    
+    if(input$violence == "Violent Protests"){
+      protest <- get_violent_protest(input$year, input$month, input$country_ex)
+    }else{
+      protest <- get_non_violent_protest(input$year, input$month, input$country_ex)
+    }
+
+    output$map_ex <- renderLeaflet({
+      leaflet() %>%
+        addProviderTiles(providers$Stamen.TonerLite,
+                         options = providerTileOptions(noWrap = TRUE)
+        ) %>%
+        
+        # clearGroup("sequence")
+        addAwesomeMarkers(protest$ActionGeo_Long, protest$ActionGeo_Lat, layerId=protest$GLOBALEVENTID,
+                          icon=ricons, popup = protest$Actor1Name, group = "root_events")
+    })
   })
 
 
