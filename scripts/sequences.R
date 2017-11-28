@@ -55,7 +55,21 @@ get_sequence <- function(violent_protest){
 
   # Get the basic stats?
   # seq_Stats <- aggregate(non_root_sequence, 2, mean)
+
+  # Create a separate sequence of just the quantitative information
+  # We want GLOBAL EVENT ID, eventrootcode, avgTone, NumMentions, and Goldstein Scale Reading
+  # !!! Unsure if the select matrix needs quotations!!! 
+  non_root_quant <- subset(x = non_root_sequence, select = c("GLOBALEVENTID", "EventRootCode", "NumMentions", "AvgTone", "GoldsteinScale"))
   
+  # Get means of AvgTone, NumMentions, and Goldstein Scale per EventRootCode
+  avgRootMen <- aggregate(x = non_root_quant$NumMentions, by = list(non_root_quant$EventRootCode), FUN = mean)
+  avgRootTone <- aggregate(x = non_root_quant$AvgTone, by = list(non_root_quant$EventRootCode), FUN = mean)
+  avgRootGold <- aggregate(x = non_root_quant$GoldsteinScale, by = list(non_root_quant$EventRootCode), FUN = mean)
+  
+  # Combine the stats into one data frame
+  # Might need to add the EventRootCode column if it does not already have that information
+  seq_Stats <- rbind(avgRootMen, avgRootTone, avgRootGold)
+    
   return(non_root_sequence)
 }
 
