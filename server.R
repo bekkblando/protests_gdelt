@@ -246,8 +246,9 @@ nicons <- awesomeIcons(
 
 shinyServer(function(input, output, session) {
   
-  stayAlive <- reactiveTimer(intervalMs = 1000)
+  stayAlive <- reactiveTimer(intervalMs = 21000)
   observe({
+    print("Staying Alive Ah Ah Ah Staying Alive")
     stayAlive()
   })
 
