@@ -12,22 +12,6 @@ shinyUI(
           max-width: 100%;
           overflow-x: hidden;
         };
-        div#seq_table
-        {
-            overflow-x: scroll;
-            width:100%;
-        };
-        div#selected_table
-        {
-                 overflow-x: scroll;
-                 width:100%;
-        };
-        div#selected_table
-        {
-            overflow-x: scroll;
-            width:100%;
-        };
-
       "),
       tags$meta(
         name="viewport",
@@ -53,7 +37,26 @@ shinyUI(
         ),
         
         tabPanel("Protest Explorer",
-          value = "protest_explorer"
+          value = "protest_explorer",
+          # Year Picker
+          fluidRow(
+            column(12, selectInput("year", "Year", choices = c(" ", seq(2014,2017)))),
+            column(12, selectInput("month", "Month", choices = c(" ", seq(1,12)))),
+            column(12, selectInput("country_ex", "Country Code", choices = countrycode_data$country.name.en)),
+            column(12, actionButton("explore_date_submit", "Explore Protests"))
+          ),
+          fluidRow(
+            column(12, leafletOutput("map_ex"))
+          ),
+          fluidRow(
+            column(10, dataTableOutput('selected_table_ex'))
+          ),
+          fluidRow(
+            column(10, dataTableOutput('seq_table_ex'))
+          ),
+          fluidRow(    
+            column(10, dataTableOutput('mentions_ex'))
+          )
         ),
         
         tabPanel("Sequence Explorer", 
@@ -74,12 +77,30 @@ shinyUI(
             column(12, switchInput(inputId = "analyze", label="Analyze Protest", value = FALSE))
           ),
           fluidRow(
+            tags$style("
+             div#selected_table{
+                       overflow-x: scroll;
+                       width:100%;
+                       };
+            "),
               column(12, tableOutput('selected_table'))
           ),
           fluidRow(
+            tags$style("
+             div#seq_table{
+              overflow-x: scroll;
+              width:100%;
+             };
+            "),
               column(12, tableOutput('seq_table'))
           ),
-          fluidRow(    
+          fluidRow(  
+            tags$style("
+             div#mentions{
+              overflow-x: scroll;
+              width:100%;
+             };
+            "),
               column(12, tableOutput('mentions'))
           ),
           fluidRow(

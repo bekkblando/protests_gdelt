@@ -60,7 +60,7 @@ get_violent_protest_ex <- function(year, month, country){
   }, finally = {
     # Done
   })
-  return(query_result)
+
   return(query_result)
 }
 
@@ -267,22 +267,17 @@ shinyServer(function(input, output, session) {
   
   stayAlive <- reactiveTimer(intervalMs = 21000)
   observe({
-    print("Staying Alive Ah Ah Ah Staying Alive")
+    print("Staying Alive Ah Ah Ah Ah Staying Alive")
     stayAlive()
   })
-  
   
   observeEvent(input$explore_date_submit, {
     # Render Loading Icon
     click <- input$explore_date_submit
+    print("test")
     
     # Protest Query
-    
-    if(input$violence == "Violent Protests"){
-      protest <- get_violent_protest(input$year, input$month, input$country_ex)
-    }else{
-      protest <- get_non_violent_protest(input$year, input$month, input$country_ex)
-    }
+    protest <- get_violent_protest_ex(input$year, input$month, input$country_ex)
 
     output$map_ex <- renderLeaflet({
       leaflet() %>%
@@ -339,7 +334,7 @@ shinyServer(function(input, output, session) {
     non_root_seq_mentions = get_mentions(click$id)
     output$mentions <- renderTable(data.frame(non_root_seq_mentions), extensions="Responsive")
     
-    # Just Exploring if analyze is false
+    # Just Exploring if analyze is false - Check the tab not the analyze button
     if(!input$analyze){
       return("Exploring the data")
     }
