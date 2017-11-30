@@ -39,11 +39,7 @@ get_sequence <- function(violent_protest){
   sequence = query_exec(sql, project = project, max_pages = Inf)
   
   # To remove minor violent occurences:
-  # minor_violence <- subset(sequence, EventRootCode == 14 & (AvgTone >= -50 || AvgTone <= 50))
-  
-  
-  
-  # sequence <- sequence[!(sequence$EventRootCode == 14 & (sequence$AvgTone >= -50 || sequence$AvgTone <= 50))]
+  # sequence <- sequence[!(sequence$EventRootCode == 14 & sequence$AvgTone >= 0)]
   
   # aggregate
   AvgMen <- aggregate(x = sequence$NumMentions, by = list(sequence$EventRootCode), FUN = mean)
@@ -62,13 +58,17 @@ get_sequence <- function(violent_protest){
   non_root_quant <- subset(x = non_root_sequence, select = c("GLOBALEVENTID", "EventRootCode", "NumMentions", "AvgTone", "GoldsteinScale"))
   
   # Get means of AvgTone, NumMentions, and Goldstein Scale per EventRootCode
-  avgRootMen <- aggregate(x = non_root_quant$NumMentions, by = list(non_root_quant$EventRootCode), FUN = mean)
-  avgRootTone <- aggregate(x = non_root_quant$AvgTone, by = list(non_root_quant$EventRootCode), FUN = mean)
-  avgRootGold <- aggregate(x = non_root_quant$GoldsteinScale, by = list(non_root_quant$EventRootCode), FUN = mean)
+  avgRootMen <- setNames(aggregate(x = non_root_quant$NumMentions, by = list(non_root_quant$EventRootCode), FUN = mean), c("EventRootCode","AvgRootMen"))
+  avgRootTone <- setNames(aggregate(x = non_root_quant$AvgTone, by = list(non_root_quant$EventRootCode), FUN = mean), c("EventRootCode","AvgRootTone"))
+  avgRootGold <- setNames(aggregate(x = non_root_quant$GoldsteinScale, by = list(non_root_quant$EventRootCode), FUN = mean),  c("EventRootCode","AvgRootGold"))
+  
+  # Get a count of each type of event
+  numOfEvent <- setNames(as.data.frame(count(non_root_quant, c(EventRootCode))), c("EventRootCode", "NumOfEvents"))
   
   # Combine the stats into one data frame
-  # Might need to add the EventRootCode column if it does not already have that information
-  seq_Stats <- rbind(avgRootMen, avgRootTone, avgRootGold)
+  seq_Stats <- cbind(numOfEvent, avgRootMen = avgRootMen[,2], avgRootTone = avgRootTone[,2], avgRootGold = avgRootGold[,2])
+  
+  print(seq_Stats)
     
   return(non_root_sequence)
 }
