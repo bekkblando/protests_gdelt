@@ -10,7 +10,7 @@ above_average_mentions <- function(row, AvgMen){
 
 is_significant_event <- function(row){
   if(row["EventRootCode"] == 14)
-    return(row["AvgTone"] <= 0)
+    return(row["AvgTone"] <= -1)
   else
     return(TRUE)
 }
