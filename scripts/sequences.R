@@ -8,7 +8,7 @@ above_average_mentions <- function(row, AvgMen){
   return(AvgMen[which(AvgMen$Group.1 == row["EventRootCode"]),]$x <= as.integer(row["NumMentions"]))
 }
 
-significant_event <- function(row){
+is_significant_event <- function(row){
   if(row["EventRootCode"] == 14)
     return(row["AvgTone"] <= 0)
   else
@@ -47,7 +47,7 @@ get_sequence <- function(violent_protest){
   
   # To remove minor violent occurences:
   # sequence <- sequence[!(sequence$EventRootCode == 14 & sequence$AvgTone >= 0)]
-  sequence$Significant <- apply(sequence, 1, function(row){ significant_event(row) })
+  sequence$Significant <- apply(sequence, 1, function(row){ is_significant_event(row) })
   
   sequence <- filter(sequence, Significant == TRUE)
   
