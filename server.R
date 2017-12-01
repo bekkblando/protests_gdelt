@@ -24,8 +24,8 @@ library(dplyr)
 
 project <- "datascienceprotest" 
 
-# set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
-set_service_token(Sys.getenv("BIGQUERYCRED"))
+set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
+# set_service_token(Sys.getenv("BIGQUERYCRED"))
 
 above_average_mentions <- function(row, AvgMen){
   return(AvgMen[which(AvgMen$Group.1 == row["EventRootCode"]),]$x <= as.integer(row["NumMentions"]))
@@ -95,7 +95,7 @@ get_sequence <- function(violent_protest){
   lower_date = fractional_date - 45/365
   higher_date = fractional_date + 45/365
 
-  sql <-paste0("SELECT GLOBALEVENTID, FractionDate, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long FROM [gdelt-bq:full.events] WHERE EventRootCode in ('10','11','12','13', '14') and FractionDate <=", higher_date ," and FractionDate >=", lower_date)
+  sql <-paste0("SELECT GLOBALEVENTID, FractionDate, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, SOURCEURL FROM [gdelt-bq:full.events] WHERE EventRootCode in ('10','11','12','13', '14') and FractionDate <=", higher_date ," and FractionDate >=", lower_date)
 
   # Add a parameter for the actors names
   if(!is.na(violent_actor1)){
