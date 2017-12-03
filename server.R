@@ -17,7 +17,12 @@ source('helper_functions.R')
   # Holistic Statistics - Sadie/Bekk - Done
     # Different types of protests increasing over time - Saide/Bekk
     # AvgTone and Goldstein Scale Per year - Sadie/Bekk
-  # Explore Protests By Month
+  # Explore Protests By Month - Done
+  
+  # Render Average Stats - Bekk
+  # Flagging Functionality - Bekk
+  # Loading Icon - Bekk
+  # Less Strict Query - Bekk
 
 # Need to be done
   # Fix crashing - Bekk - Done
@@ -89,15 +94,31 @@ shinyServer(function(input, output, session) {
                           icon=ricons, popup = paste0(protest$GLOBALEVENTID), group = "root_events")
     })
   })
+  
+  observeEvent(input$map_ex_marker_click, {
+    click <- input$map_ex_marker_click
+    # print("in the christmas spirit")
+    # Loading
+    # output$loading_ex <- renderImage({list(src =  "static/loading.gif")}, deleteFile = FALSE)
+    
+    root_protest = get_protest(click$id)
+    output$selected_table_ex <- renderTable(data.frame(root_protest))
+    non_root_seq_mentions = get_mentions(click$id)
+    output$mentions_ex <- renderTable(data.frame(non_root_seq_mentions))
+    # removeUI("loading_ex")
+  })
 
-  # Show popup on click
+  # Show popup on click - TODO Clean Up Needed
   observeEvent(input$map_marker_click, {
     click <- input$map_marker_click
     
+    # Loading Icon
+    # output$loading <- renderImage({list(src =  "static/loading.gif")}, deleteFile = FALSE)
+    
     root_protest = get_protest(click$id)
-    output$selected_table <- renderTable(data.frame(root_protest), extensions="Responsive")
+    output$selected_table <- renderTable(data.frame(root_protest))
     non_root_seq_mentions = get_mentions(click$id)
-    output$mentions <- renderTable(data.frame(non_root_seq_mentions), extensions="Responsive")
+    output$mentions <- renderTable(data.frame(non_root_seq_mentions))
     
     # Just Exploring if analyze is false - Check the tab not the analyze button
     if(!input$analyze){
@@ -134,5 +155,6 @@ shinyServer(function(input, output, session) {
     output$code_tone <- code_tone(non_root_seq)
     output$eventcode_count <- eventcode_count(non_root_seq)
     output$event_time <- event_time(non_root_seq)
+    # removeUI("loading")
   })
 })
