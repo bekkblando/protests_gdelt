@@ -58,9 +58,8 @@ shinyUI(
       fluidRow(
         column(10, plotOutput('mentions_to_avgtone')),
         column(10, plotOutput('code_tone')),
-        column(10, plotOutput('sunflowerplots1')),
-        column(10, plotOutput('sunflowerplots2')),
-        column(10, plotOutput('eventcode_count'))
+        column(10, plotOutput('eventcode_count')),
+        column(10, plotOutput('event_time'))
       )
     )
   )
