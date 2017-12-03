@@ -49,16 +49,13 @@ shinyUI(
             column(12, leafletOutput("map_ex"))
           ),
           fluidRow(
-            column(12, imageOutput("hungry_loading_ex"))
-          ),
-          fluidRow(
             tags$style("
              div#selected_table_ex{
                        overflow-x: scroll;
                        width:100%;
                        };
             "),
-            column(10, dataTableOutput('selected_table_ex'))
+            column(12, tableOutput('selected_table_ex'))
           ),
           fluidRow(
             tags$style("
@@ -67,7 +64,7 @@ shinyUI(
                        width:100%;
                        };
             "),
-            column(10, dataTableOutput('seq_table_ex'))
+            column(12, tableOutput('seq_table_ex'))
           ),
           fluidRow(    
             tags$style("
@@ -76,7 +73,7 @@ shinyUI(
                        width:100%;
                        };
              "),
-            column(10, dataTableOutput('mentions_ex'))
+            column(12, tableOutput('mentions_ex'))
           )
         ),
         
@@ -98,7 +95,7 @@ shinyUI(
             column(12, switchInput(inputId = "analyze", label="Analyze Protest", value = TRUE))
           ),
           fluidRow(
-            column(12, imageOutput("hungry_loading"))
+            column(12, imageOutput("loading"))
           ),
           fluidRow(
             tags$style("
