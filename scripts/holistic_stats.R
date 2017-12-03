@@ -1,3 +1,4 @@
+library(bigrquery)
 # World Wide
   # Graph of Violent Protests Over Time
 project <- "datascienceprotest" 
@@ -99,8 +100,8 @@ project <- "datascienceprotest"
 
 set_service_token("/Users/BekkBlando/Documents/github/clemson/data_science/protests/DataScienceProtest-2dc6d98778fa.json") 
 
-new_sql <- paste0("SELECT COUNT(GLOBALEVENTID), Year FROM [gdelt-bq:gdeltv2.events] WHERE EventCode LIKE '145%' and Year>2014 and CountryGROUP BY YEAR")
-old_sql <- paste0("SELECT COUNT(GLOBALEVENTID), Year FROM [gdelt-bq:full.events] WHERE EventCode LIKE '145%' and Year>1989 and Year<2015 GROUP BY YEAR")
+new_sql <- paste0("SELECT COUNT(GLOBALEVENTID), Year FROM [gdelt-bq:gdeltv2.events] WHERE EventCode LIKE '145%' and Year>2014 and ActionGeo_CountryCode='US' GROUP BY YEAR")
+old_sql <- paste0("SELECT COUNT(GLOBALEVENTID), Year FROM [gdelt-bq:full.events] WHERE EventCode LIKE '145%' and Year>1989 and Year<2015 and ActionGeo_CountryCode='US' GROUP BY YEAR")
 
 violent_protest_graph_new <- query_exec(new_sql, project = project, max_pages = Inf)
 violent_protest_graph_old <- query_exec(old_sql, project = project, max_pages = Inf)
@@ -113,8 +114,8 @@ g + geom_bar(stat = "identity") + xlab("Year") + ylab("Number Of Violent Protest
 
 # Graph of Non-Protests Over Time
 
-new_sql <- paste0("SELECT COUNT(GLOBALEVENTID), Year FROM [gdelt-bq:gdeltv2.events] WHERE EventCode <> '145' and EventRootCode='14' and Year>2014 GROUP BY YEAR")
-old_sql <- paste0("SELECT COUNT(GLOBALEVENTID), Year FROM [gdelt-bq:full.events] WHERE EventCode <> '145' and EventRootCode='14' and Year>1989 and Year<2015 GROUP BY YEAR")
+new_sql <- paste0("SELECT COUNT(GLOBALEVENTID), Year FROM [gdelt-bq:gdeltv2.events] WHERE EventCode <> '145' and EventRootCode='14' and Year>2014 and ActionGeo_CountryCode='US' GROUP BY YEAR")
+old_sql <- paste0("SELECT COUNT(GLOBALEVENTID), Year FROM [gdelt-bq:full.events] WHERE EventCode <> '145' and EventRootCode='14' and Year>1989 and Year<2015 and ActionGeo_CountryCode='US' GROUP BY YEAR")
 
 protest_graph_new <- query_exec(new_sql, project = project, max_pages = Inf)
 protest_graph_old <- query_exec(old_sql, project = project, max_pages = Inf)
@@ -127,8 +128,8 @@ g + geom_bar(stat = "identity") + xlab("Year") + ylab("Number Of Non-Violent Pro
 
 # Average Tone Surrounding Protests Per Year
 
-new_sql_tone <- paste0("SELECT AVG(AvgTone), Year FROM [gdelt-bq:gdeltv2.events] WHERE EventCode <> '145' and EventRootCode='14' and Year>2014 GROUP BY YEAR")
-old_sql_tone <- paste0("SELECT AVG(AvgTone), Year FROM [gdelt-bq:full.events] WHERE EventCode <> '145' and EventRootCode='14' and Year>1989 and Year<2015 GROUP BY YEAR")
+new_sql_tone <- paste0("SELECT AVG(AvgTone), Year FROM [gdelt-bq:gdeltv2.events] WHERE EventCode <> '145' and EventRootCode='14' and Year>2014 and ActionGeo_CountryCode='US' GROUP BY YEAR")
+old_sql_tone <- paste0("SELECT AVG(AvgTone), Year FROM [gdelt-bq:full.events] WHERE EventCode <> '145' and EventRootCode='14' and Year>1989 and Year<2015 and ActionGeo_CountryCode='US' GROUP BY YEAR")
 
 protest_graph_new_tone <- query_exec(new_sql_tone, project = project, max_pages = Inf)
 protest_graph_old_tone <- query_exec(old_sql_tone, project = project, max_pages = Inf)
@@ -143,8 +144,8 @@ g + geom_bar(stat = "identity") + xlab("Year") + ylab("Average Tone Per Year Sur
 
 # Average Tone Surrounding Violent Protests Per Year
 
-new_sql_tone <- paste0("SELECT AVG(AvgTone), Year FROM [gdelt-bq:gdeltv2.events] WHERE EventCode LIKE '145%' and Year>2014 GROUP BY YEAR")
-old_sql_tone <- paste0("SELECT AVG(AvgTone), Year FROM [gdelt-bq:full.events] WHERE EventCode LIKE '145%' and Year>1989 and Year<2015 GROUP BY YEAR")
+new_sql_tone <- paste0("SELECT AVG(AvgTone), Year FROM [gdelt-bq:gdeltv2.events] WHERE EventCode LIKE '145%' and Year>2014 and ActionGeo_CountryCode='US' GROUP BY YEAR")
+old_sql_tone <- paste0("SELECT AVG(AvgTone), Year FROM [gdelt-bq:full.events] WHERE EventCode LIKE '145%' and Year>1989 and Year<2015 and ActionGeo_CountryCode='US' GROUP BY YEAR")
 
 violent_protest_graph_new_tone <- query_exec(new_sql_tone, project = project, max_pages = Inf)
 violent_protest_graph_old_tone <- query_exec(old_sql_tone, project = project, max_pages = Inf)
@@ -158,8 +159,8 @@ g + geom_bar(stat = "identity") + xlab("Year") + ylab("Average Tone Per Year Sur
 
 # Average Goldstein Scale for Protests Per Year
 
-new_sql_gold <- paste0("SELECT AVG(GoldsteinScale), Year FROM [gdelt-bq:gdeltv2.events] WHERE EventCode <> '145' and EventRootCode='14' and Year>2014 GROUP BY YEAR")
-old_sql_gold <- paste0("SELECT AVG(GoldsteinScale), Year FROM [gdelt-bq:full.events] WHERE EventCode <> '145' and EventRootCode='14' and Year>1989 and Year<2015 GROUP BY YEAR")
+new_sql_gold <- paste0("SELECT AVG(GoldsteinScale), Year FROM [gdelt-bq:gdeltv2.events] WHERE EventCode <> '145' and EventRootCode='14' and Year>2014 and ActionGeo_CountryCode='US' GROUP BY YEAR")
+old_sql_gold <- paste0("SELECT AVG(GoldsteinScale), Year FROM [gdelt-bq:full.events] WHERE EventCode <> '145' and EventRootCode='14' and Year>1989 and Year<2015 and ActionGeo_CountryCode='US' GROUP BY YEAR")
 
 protest_graph_new_gold <- query_exec(new_sql_tone, project = project, max_pages = Inf)
 protest_graph_old_gold <- query_exec(old_sql_tone, project = project, max_pages = Inf)
@@ -174,8 +175,8 @@ g + geom_bar(stat = "identity") + xlab("Year") + ylab("Average Goldstein Scale P
 
 # Average Goldstein Scale for Violent Protests Per Year
 
-new_sql_gold <- paste0("SELECT AVG(GoldsteinScale), Year FROM [gdelt-bq:gdeltv2.events] WHERE EventCode LIKE '145%' and Year>2014 GROUP BY YEAR")
-old_sql_gold <- paste0("SELECT AVG(GoldsteinScale), Year FROM [gdelt-bq:full.events] WHERE EventCode LIKE '145%' and Year>1989 and Year<2015 GROUP BY YEAR")
+new_sql_gold <- paste0("SELECT AVG(GoldsteinScale), Year FROM [gdelt-bq:gdeltv2.events] WHERE EventCode LIKE '145%' and Year>2014 and ActionGeo_CountryCode='US' GROUP BY YEAR")
+old_sql_gold <- paste0("SELECT AVG(GoldsteinScale), Year FROM [gdelt-bq:full.events] WHERE EventCode LIKE '145%' and Year>1989 and Year<2015 and ActionGeo_CountryCode='US' GROUP BY YEAR")
 
 violent_protest_graph_new_gold <- query_exec(new_sql_gold, project = project, max_pages = Inf)
 violent_protest_graph_old_gold <- query_exec(old_sql_gold, project = project, max_pages = Inf)
