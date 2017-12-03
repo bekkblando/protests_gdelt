@@ -25,8 +25,8 @@ source('helper_functions.R')
 
 project <- "datascienceprotest" 
 
-set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
-# set_service_token(Sys.getenv("BIGQUERYCRED"))
+# set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
+set_service_token(Sys.getenv("BIGQUERYCRED"))
 
 shinyServer(function(input, output, session) {
   
