@@ -1,3 +1,4 @@
+project <- "datascienceprotest" 
 
 above_average_mentions <- function(row, AvgMen){
   return(AvgMen[which(AvgMen$Group.1 == row["EventRootCode"]),]$x <= as.integer(row["NumMentions"]))
@@ -37,13 +38,25 @@ get_violent_protest_ex <- function(year, month, country){
 }
 
 get_non_violent_protest_ex <- function(year, month){
-  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='140' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
+  sql <- paste0("SELECT GLOBALEVENTID,ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventRootCode='14' and EventCode <> '145' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
   return(query_exec(sql, project = project, max_pages = Inf))
 }
 
-get_non_violent_protest <- function(year, month){
-  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, NumMentions, FractionDate, SOURCEURL FROM [gdelt-bq:gdeltv2.events] WHERE EventCode='140' and MonthYear=", year, paste0(formatC(as.integer(month), width=2, flag="0")))
-  return(query_exec(sql, project = project, max_pages = Inf))
+get_non_violent_protest <- function(year, month, day, country){
+  fraction_date = signif(as.numeric(year) + (as.numeric(month) * 30 + as.numeric(day))/365, digits=8)
+  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, Actor1Geo_FullName, Actor2Geo_FullName, EventCode, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventRootCode='14' and EventCode <> '145' and FractionDate=", fraction_date, " and ActionGeo_CountryCode='", paste0(countrycode(country, "country.name.en" ,"fips105")), "'")
+  print(sql)
+  
+  query_result = tryCatch({
+    return(query_exec(sql, project = project))
+  }, warning = function(w) {
+    # Put an error message
+  }, error = function(e) {
+    # Put an error message,
+  }, finally = {
+    # Done
+  })
+  return(query_result)
 }
 
 get_protest <- function(global_id){
