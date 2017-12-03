@@ -111,6 +111,7 @@ get_sequence <- function(violent_protest){
   return(non_root_sequence)
 }
 
+
 # Render Saidie's Graphs Yo
 
 mentions_to_avgtone <- function(events){
@@ -120,62 +121,23 @@ mentions_to_avgtone <- function(events){
                             main = "Number of Mentions by Goldstein Scale and Average Tone")))
 }
 
-goldstein_to_mentions <- function(events){
-  return(renderPlot(symbols(events$GoldsteinScale, events$QuadClass, 
-                            circles = rescale(events$AvgTone, to = c(0,200)), inches=0.45, 
-                            fg="black", bg="slateblue2", xlab = "Goldstein Scale", 
-                            ylab = "Quad Class", 
-                            main = "Average Tone by Goldstein Scale and Quad Class" )))
-}
-
 code_tone <- function(events) {
-  return(renderPlot(symbols(events$EventCode, events$NumMentions, 
+  return(renderPlot(symbols(factor(events$EventCode), events$NumMentions, 
                             circles = rescale(events$AvgTone, to = c(0,200)), inches=0.35,
                             fg = "darkblue", bg = "slateblue1", xlab = "Event Code",
                             ylab = "Number of Mentions", 
                             main = "Average Tone by Event Code and Number of Mentions")))
 }
 
-sunflowerplots1 <- function(events){
-  return(renderPlot(sunflowerplot(events$AvgTone, events$NumMentions, xlab = "Average Tone",
-                                  ylab = "Number of Mentions", col = "blue")))
-  
-}
-
-sunflowerplots2 <- function(events){
-  return(renderPlot(sunflowerplot(events$AvgTone, events$GoldsteinScale, xlab = "Average Tone",
-                                  ylab = "Goldstein Scale")))
-  
-}
-
-
-mentions_and_avgtone <- function(events){
-  
-  p <- ggplot2::ggplot(events, aes(x = EventCode, y = NumMentions)) +
-    geom_bar(stat = "identity", fill = "orange", 
-             width = .02) + scale_y_continuous(breaks = sequence(sum(events$NumMentions))) +
-    labs(x = "Event Code", y = "Number of Mentions") +
-    ggtitle("Number of Mentions per Event Code") +
-    theme_bw() +
-    theme(panel.grid.major.x = element_blank(),
-          panel.grid.major.y = element_line(colour = "grey50"),
-          plot.title = element_text(size = rel(2), face = "bold", vjust = 1.5), 
-          axis.title = element_text(face = "bold")
-    )
-  
-  return(renderPlot(p))
-  
-}
-
 eventcode_count <- function(events){
   
   bar_data <- data.frame(
     Event_Code = events$EventCode,
-    Average_Tone = events$AvgTone)
+    Average_Tone = mean(events$AvgTone))
   
   b <- ggplot2::ggplot(bar_data, aes(x = Event_Code, y= Average_Tone, 
                                      fill=Event_Code)) + 
-    geom_bar(width = 1, stat="identity", show.legend = TRUE) + 
+    geom_bar(width = 1, stat="identity", show.legend = TRUE, na.rm = TRUE) + 
     labs(x = "Event Code", y = "Average Tone") + 
     labs(title = "Average Tone Based on Event Code") +
     theme_light() + 
@@ -190,33 +152,49 @@ eventcode_count <- function(events){
 }
 
 
-avgtone_quadclass <- function(events) {
+
+event_time <- function(events) {
   
-  plot_data1 <- data.frame(
-    tone = events$AvgTone,
-    quad = events$QuadClass)
+  fraction_to_date <- function(fractional){
+    year <- trunc(fractional)
+    day <- round(((fractional - trunc(fractional)) * 365) %% 30)
+    month <- round((((fractional - trunc(fractional)) * 365)-day)/30)
+    
+    dateString <- paste(year, sep="-")
+    return (as.Date(dateString))
+  }
   
-  a <- ggplot2::ggplot(plot_data1, aes(x=tone, y=quad, fill = quad)) +
-    geom_point(color="firebrick") +
-    theme_light() + theme( panel.grid = element_line(colour = "grey50"),
-                           panel.border = element_rect(linetype = "solid", fill = NA),
-                           plot.title = element_text(size = rel(1.5), face = "bold"))
+  fractional<- events$FractionDate
   
-  return(renderPlot(a))
+  
+  year <- trunc(fractional)
+  day <- round(((fractional - trunc(fractional)) * 365) %% 30)
+  month <- round((((fractional - trunc(fractional)) * 365)-day)/30)
+  
+  dateString <- paste(year, month, day, sep="-")
+  response <- as.Date(dateString)
+  
+  
+  scat_data <- data.frame(
+    Dates = response,
+    Average_Tone = events$AvgTone)
+  
+  t <- ggplot2::ggplot(scat_data, aes(x = Dates, y = Average_Tone),
+                       fill = Avg_Tone) +
+    geom_count(stat="identity", show.legend = TRUE, inherit.aes = TRUE, na.rm = TRUE) + 
+    labs(x = "Date", y = "Average Tone") + 
+    labs(title = "Average Tone Over 90 Day Window") +
+    theme_bw() + 
+    theme(panel.grid = element_line(colour = "grey50"),
+          panel.border = element_rect(linetype = "solid", fill = NA),
+          plot.title = element_text(size = rel(2), face = "bold"),
+          axis.title = element_text(face = "bold"), 
+          legend.text = element_text(events$EventCode)
+    )
+  
+  return(renderPlot(t))
 }
 
-
-avgtone_time <- function(events) {
-  
-  plot_data2 <- data.frame(
-    time = events$FractionDate,
-    tone = events$AvgTone)
-  
-  t <- ggplot2::ggplot(plot_data2, aes(time, tone)) +
-    #scale_x_date(format = "%d/%b") + 
-    xlab("Fraction Date") + ylab("Average Tone") +
-    geom_line()
-}
 
 # End Rendering Saidie's Graphs my hellsink
 

@@ -36,10 +36,10 @@ shinyServer(function(input, output, session) {
     stayAlive()
   })
   
+
   observeEvent(input$explore_date_submit, {
     # Render Loading Icon
     click <- input$explore_date_submit
-    print("test")
     
     # Protest Query
     protest <- get_violent_protest_ex(input$year, input$month, input$country_ex)
@@ -131,12 +131,8 @@ shinyServer(function(input, output, session) {
     output$seq_table <- renderTable(data.frame(non_root_seq), extensions="Responsive")
     # Render Sadie's Graphs
     output$mentions_to_avgtone <- mentions_to_avgtone(non_root_seq)
-    output$goldstein_to_mentions <- goldstein_to_mentions(non_root_seq)
     output$code_tone <- code_tone(non_root_seq)
-    output$sunflowerplots1 <- sunflowerplots1(non_root_seq)
-    output$sunflowerplots2 <- sunflowerplots2(non_root_seq)
-    output$mentions_and_avgtone <- mentions_and_avgtone(non_root_seq)
     output$eventcode_count <- eventcode_count(non_root_seq)
-    output$avgtone_quadclass <- avgtone_quadclass(non_root_seq)
+    output$event_time <- event_time(non_root_seq)
   })
 })

@@ -40,8 +40,8 @@ shinyUI(
           value = "protest_explorer",
           # Year Picker
           fluidRow(
-            column(12, selectInput("year", "Year", choices = c(" ", seq(2014,2017)))),
-            column(12, selectInput("month", "Month", choices = c(" ", seq(1,12)))),
+            column(12, selectInput("year", "Year", choices = c(" ", seq(2015, 2017)))),
+            column(12, selectInput("month", "Month", choices = c(" ", seq(1, 12)))),
             column(12, selectInput("country_ex", "Country Code", choices = countrycode_data$country.name.en)),
             column(12, actionButton("explore_date_submit", "Explore Protests"))
           ),
@@ -49,12 +49,33 @@ shinyUI(
             column(12, leafletOutput("map_ex"))
           ),
           fluidRow(
+            column(12, imageOutput("hungry_loading_ex"))
+          ),
+          fluidRow(
+            tags$style("
+             div#selected_table_ex{
+                       overflow-x: scroll;
+                       width:100%;
+                       };
+            "),
             column(10, dataTableOutput('selected_table_ex'))
           ),
           fluidRow(
+            tags$style("
+             div#seq_table_ex{
+                       overflow-x: scroll;
+                       width:100%;
+                       };
+            "),
             column(10, dataTableOutput('seq_table_ex'))
           ),
           fluidRow(    
+            tags$style("
+             div#mentions_ex{
+                       overflow-x: scroll;
+                       width:100%;
+                       };
+             "),
             column(10, dataTableOutput('mentions_ex'))
           )
         ),
@@ -74,7 +95,10 @@ shinyUI(
             column(12, leafletOutput("map"))
           ),
           fluidRow(
-            column(12, switchInput(inputId = "analyze", label="Analyze Protest", value = FALSE))
+            column(12, switchInput(inputId = "analyze", label="Analyze Protest", value = TRUE))
+          ),
+          fluidRow(
+            column(12, imageOutput("hungry_loading"))
           ),
           fluidRow(
             tags$style("
@@ -105,13 +129,9 @@ shinyUI(
           ),
           fluidRow(
             column(10, plotOutput('mentions_to_avgtone')),
-            column(10, plotOutput('goldstein_to_mentions')),
             column(10, plotOutput('code_tone')),
-            column(10, plotOutput('sunflowerplots1')),
-            column(10, plotOutput('sunflowerplots2')),
-            column(10, plotOutput('mentions_and_avgtone')),
             column(10, plotOutput('eventcode_count')),
-            column(10, plotOutput('avgtone_quadclass'))
+            column(10, plotOutput('event_time'))
           )
         )
       )
