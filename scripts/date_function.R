@@ -3,8 +3,9 @@ fraction_to_date <- function(fractional){
   day <- round(((fractional - trunc(fractional)) * 365) %% 30)
   month <- round((((fractional - trunc(fractional)) * 365)-day)/30)
     
-  dateString <- paste(year, sep="-")
-  return (as.Date(dateString))
+  dateString <- paste(year, month, day, sep="-")
+  response <- as.Date(dateString)
+  return (response)
 }
 
 

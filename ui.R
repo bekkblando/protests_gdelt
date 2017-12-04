@@ -92,7 +92,9 @@ shinyUI(
             column(12, leafletOutput("map"))
           ),
           fluidRow(
-            column(12, switchInput(inputId = "analyze", label="Analyze Protest", value = TRUE))
+            column(4, switchInput(inputId = "analyze", label="Analyze Protest", value = TRUE)),
+            column(4, switchInput(inputId = "flag", label="Flag as Incorrect", value = FALSE)),
+            column(4, tableOutput('flagged'))
           ),
           fluidRow(
             tags$style("
