@@ -8,6 +8,7 @@ library(DT)
 library(scales)
 library(dplyr)
 source('helper_functions.R')
+source('db_help.R')
 
 # High Leverage - Low Cost
   # Working on Heroku - Bekk - Sunday - 30 min - Done
@@ -19,8 +20,8 @@ source('helper_functions.R')
     # AvgTone and Goldstein Scale Per year - Sadie/Bekk - Done
   # Explore Protests By Month - Done
   
-  # Render Average Stats - Done
-  # Date object render instead of fraction date - Bekk
+  # Render Average Stats - Bekk - Done
+  # Date object render instead of fraction date - Bekk - Done
   # Flagging Functionality - Bekk
   # Loading Icon - Bekk
   # Less Strict Query - Bekk
@@ -117,6 +118,20 @@ shinyServer(function(input, output, session) {
     # output$loading <- renderImage({list(src =  "static/loading.gif")}, deleteFile = FALSE)
     
     root_protest = get_protest(click$id)
+    
+    if(!is.na(db_init())){
+      if(input$flag){
+        set_flagged(click$id)
+      }
+      
+      output$flagged <- renderTable(get_flagged(click$id))
+      db_dis()
+    }
+    
+    # Date in human readable format
+    root_protest$Date = apply(root_protest, 1, function(row) { fraction_to_date_view(as.double(row["FractionDate"])) })
+    root_protest = root_protest[,c(ncol(root_protest), 1:(ncol(root_protest) - 1))]
+    
     output$selected_table <- renderTable(data.frame(root_protest))
     non_root_seq_mentions = get_mentions(click$id)
     output$mentions <- renderTable(data.frame(non_root_seq_mentions))
@@ -154,6 +169,8 @@ shinyServer(function(input, output, session) {
     # Render Summary Statistics
     output$summary_stats <- renderTable(data.frame(summary_stats))
     # Render more notes if a violent protest exist within this
+    non_root_seq$Date = apply(non_root_seq, 1, function(row) { fraction_to_date_view(as.double(row["FractionDate"])) })
+    non_root_seq = non_root_seq[,c(ncol(non_root_seq), 1:(ncol(non_root_seq) - 1))]
     output$seq_table <- renderTable(data.frame(non_root_seq))
     # Render Sadie's Graphs
     output$mentions_to_avgtone <- mentions_to_avgtone(non_root_seq)

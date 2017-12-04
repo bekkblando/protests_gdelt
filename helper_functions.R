@@ -1,5 +1,14 @@
 project <- "datascienceprotest" 
 
+fraction_to_date_view <- function(fractional){
+  year <- trunc(fractional)
+  day <- round(((fractional - trunc(fractional)) * 365) %% 30)
+  month <- round((((fractional - trunc(fractional)) * 365)-day)/30)
+  
+  dateString <- paste(year, month, day, sep="-")
+  return (dateString)
+}
+
 above_average_mentions <- function(row, AvgMen){
   return(AvgMen[which(AvgMen$Group.1 == row["EventRootCode"]),]$x <= as.integer(row["NumMentions"]))
 }
@@ -60,7 +69,7 @@ get_non_violent_protest <- function(year, month, day, country){
 }
 
 get_protest <- function(global_id){
-  sql <- paste0("SELECT GLOBALEVENTID, FractionDate, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, Actor1Geo_FullName, Actor2Geo_FullName, SOURCEURL FROM [gdelt-bq:gdeltv2.events] WHERE GLOBALEVENTID=", global_id)
+  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, Actor1Geo_FullName, Actor2Geo_FullName, FractionDate, SOURCEURL FROM [gdelt-bq:gdeltv2.events] WHERE GLOBALEVENTID=", global_id)
   return(query_exec(sql, project = project, max_pages = Inf))
 }
 
@@ -88,7 +97,7 @@ get_sequence <- function(violent_protest){
   lower_date = fractional_date - 45/365
   higher_date = fractional_date + 45/365
   
-  sql <-paste0("SELECT GLOBALEVENTID, FractionDate, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, SOURCEURL FROM [gdelt-bq:full.events] WHERE EventRootCode in ('10','11','12','13', '14') and FractionDate <=", higher_date ," and FractionDate >=", lower_date)
+  sql <-paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, FractionDate, SOURCEURL FROM [gdelt-bq:full.events] WHERE EventRootCode in ('10','11','12','13', '14') and FractionDate <=", higher_date ," and FractionDate >=", lower_date)
   
   # Add a parameter for the actors names
   if(!is.na(violent_actor1)){
