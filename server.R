@@ -10,16 +10,17 @@ library(dplyr)
 source('helper_functions.R')
 
 # High Leverage - Low Cost
-  # Working on Heroku - Bekk - Sunday - 30 min
-  # CSS Styling - Bekk - Sunday - 2 Hours
+  # Working on Heroku - Bekk - Sunday - 30 min - Done
+  # CSS Styling - Bekk - Sunday - 2 Hours - Done
   # Graphs Per Sequence - Sadie 
     # Events in Order
   # Holistic Statistics - Sadie/Bekk - Done
-    # Different types of protests increasing over time - Saide/Bekk
-    # AvgTone and Goldstein Scale Per year - Sadie/Bekk
+    # Different types of protests increasing over time - Saide/Bekk - Done
+    # AvgTone and Goldstein Scale Per year - Sadie/Bekk - Done
   # Explore Protests By Month - Done
   
-  # Render Average Stats - Bekk
+  # Render Average Stats - Done
+  # Date object render instead of fraction date - Bekk
   # Flagging Functionality - Bekk
   # Loading Icon - Bekk
   # Less Strict Query - Bekk
@@ -126,7 +127,9 @@ shinyServer(function(input, output, session) {
     }
 
     # Show non-root events based on the violent protest
-    non_root_seq = get_sequence(root_protest)
+    raw_data = get_sequence(root_protest)
+    non_root_seq = data.frame(raw_data[1])
+    summary_stats = data.frame(raw_data[2])
 
 
     if(identical(non_root_seq$ActionGeo_Long, numeric(0)) || length(sequence) == 0){
@@ -148,8 +151,10 @@ shinyServer(function(input, output, session) {
     proxy %>% addAwesomeMarkers(root_protest$ActionGeo_Long, root_protest$ActionGeo_Lat, layerId=root_protest$GLOBALEVENTID,
                                 icon=ricons, popup = root_protest$Actor1Name, group = "root_events")
   
+    # Render Summary Statistics
+    output$summary_stats <- renderTable(data.frame(summary_stats))
     # Render more notes if a violent protest exist within this
-    output$seq_table <- renderTable(data.frame(non_root_seq), extensions="Responsive")
+    output$seq_table <- renderTable(data.frame(non_root_seq))
     # Render Sadie's Graphs
     output$mentions_to_avgtone <- mentions_to_avgtone(non_root_seq)
     output$code_tone <- code_tone(non_root_seq)

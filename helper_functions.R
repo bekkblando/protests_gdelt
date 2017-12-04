@@ -70,6 +70,14 @@ get_mentions <- function(global_id){
   return(query_exec(sql, project = project, max_pages = Inf))
 }
 
+is_significant_event <- function(row){
+  if(row["EventRootCode"] == 14)
+    return(row["AvgTone"] <= -1)
+  else
+    return(TRUE)
+}
+
+
 get_sequence <- function(violent_protest){
   violent_actor1 = violent_protest$Actor1Name
   violent_actor2 = violent_protest$Actor2Name
@@ -121,7 +129,23 @@ get_sequence <- function(violent_protest){
   
   non_root_sequence <- filter(sequence, AboveAvgMen == TRUE)
   
-  return(non_root_sequence)
+  # Create a separate sequence of just the quantitative information
+  # We want GLOBAL EVENT ID, eventrootcode, avgTone, NumMentions, and Goldstein Scale Reading
+  # !!! Unsure if the select matrix needs quotations!!! 
+  non_root_quant <- subset(x = non_root_sequence, select = c("GLOBALEVENTID", "EventRootCode", "NumMentions", "AvgTone", "GoldsteinScale"))
+  
+  # Get means of AvgTone, NumMentions, and Goldstein Scale per EventRootCode
+  avgRootMen <- setNames(aggregate(x = non_root_quant$NumMentions, by = list(non_root_quant$EventRootCode), FUN = mean), c("EventRootCode","AvgRootMen"))
+  avgRootTone <- setNames(aggregate(x = non_root_quant$AvgTone, by = list(non_root_quant$EventRootCode), FUN = mean), c("EventRootCode","AvgRootTone"))
+  avgRootGold <- setNames(aggregate(x = non_root_quant$GoldsteinScale, by = list(non_root_quant$EventRootCode), FUN = mean),  c("EventRootCode","AvgRootGold"))
+  
+  # Get a count of each type of event
+  numOfEvent <- setNames(as.data.frame(count(non_root_quant, c(EventRootCode))), c("EventRootCode", "NumOfEvents"))
+  
+  # Combine the stats into one data frame
+  seq_Stats <- cbind(numOfEvent, avgRootMen = avgRootMen[,2], avgRootTone = avgRootTone[,2], avgRootGold = avgRootGold[,2])
+  
+  return(list(non_root_sequence, seq_Stats))
 }
 
 
