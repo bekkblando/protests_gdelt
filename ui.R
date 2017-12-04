@@ -95,9 +95,6 @@ shinyUI(
             column(12, switchInput(inputId = "analyze", label="Analyze Protest", value = TRUE))
           ),
           fluidRow(
-            column(12, imageOutput("loading"))
-          ),
-          fluidRow(
             tags$style("
              div#selected_table{
                        overflow-x: scroll;
@@ -106,6 +103,15 @@ shinyUI(
             "),
               column(12, tableOutput('selected_table'))
           ),
+          fluidRow(
+            tags$style("
+                       div#summary_stats{
+                       overflow-x: scroll;
+                       width:100%;
+                       };
+                       "),
+            column(12, tableOutput('summary_stats'))
+            ),
           fluidRow(
             tags$style("
              div#seq_table{
