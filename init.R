@@ -1,4 +1,4 @@
-my_packages = c("shiny","leaflet", "plyr", "dplyr" , "httr", "bigrquery", "countrycode", "ggplot2", "shinyWidgets", "DT", "scales", "RPostgreSQL", "DBI", "extrafont")
+my_packages = c("shiny","leaflet", "plyr", "dplyr" , "httr", "bigrquery", "countrycode", "ggplot2", "shinyWidgets", "DT", "scales", "RPostgreSQL", "DBI","timevis", "extrafont")
 
 install_if_missing = function(p) {
   if (p %in% rownames(installed.packages()) == FALSE) {

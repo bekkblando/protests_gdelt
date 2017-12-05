@@ -1,11 +1,26 @@
-project <- "pvp1-182616" 
+project <- "DataScienceProtest" 
+
+events_to_timeline <- function(events){
+  print(events$Date)
+  
+ # print(c("2016-01-10", "2016-01-11",
+         #        "2016-01-20", "2016-02-14 15:00:00"))
+  timeline <- data.frame(
+    start   = events$Date,
+    content = events$EventCode
+  )
+  return(timeline)
+}
 
 fraction_to_date_view <- function(fractional){
   year <- trunc(fractional)
   day <- round(((fractional - trunc(fractional)) * 365) %% 30)
   month <- round((((fractional - trunc(fractional)) * 365)-day)/30)
   
-  dateString <- paste(year, month, day, sep="-")
+  if(month<10) month = paste(0, month, sep= "")
+  if(day<10) day = paste(0, day, sep = "")
+  dateString <- paste(year, month, day, sep ="-")
+  
   return (dateString)
 }
 

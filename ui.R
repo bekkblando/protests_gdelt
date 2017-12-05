@@ -3,6 +3,8 @@ library(leaflet)
 library(plyr)
 library(countrycode)
 library(shinyWidgets)
+library(timevis)
+
 
 shinyUI(
   fluidPage(
@@ -133,10 +135,15 @@ shinyUI(
               column(12, tableOutput('mentions'))
           ),
           fluidRow(
-            column(10, plotOutput('mentions_to_avgtone')),
-            column(10, plotOutput('code_tone')),
-            column(10, plotOutput('eventcode_count')),
-            column(10, plotOutput('event_time'))
+            column(6, plotOutput('mentions_to_avgtone')),
+            column(6, plotOutput('code_tone'))
+          ),
+          fluidRow(
+            column(6, plotOutput('eventcode_count')),
+            column(6, plotOutput('event_time'))
+          ),
+          fluidRow(
+            column(12, timevisOutput('events_to_timeline'))
           )
         )
       )
