@@ -30,10 +30,12 @@ source('db_help.R')
   # Fix crashing - Bekk - Done
   # More Specific Sequences - Tyler and Bjerken - Complete
 
-project <- "datascienceprotest" 
+project <- "pvp1-182616" 
 
-set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
+#set_service_token("DataScienceProtest-2dc6d98778fa.json")
 # set_service_token(Sys.getenv("BIGQUERYCRED"))
+#Sadie project ID pvp1-182616
+
 
 shinyServer(function(input, output, session) {
   

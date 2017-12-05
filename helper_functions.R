@@ -1,4 +1,4 @@
-project <- "datascienceprotest" 
+project <- "pvp1-182616" 
 
 fraction_to_date_view <- function(fractional){
   year <- trunc(fractional)
@@ -53,7 +53,10 @@ get_non_violent_protest_ex <- function(year, month){
 
 get_non_violent_protest <- function(year, month, day, country){
   fraction_date = signif(as.numeric(year) + (as.numeric(month) * 30 + as.numeric(day))/365, digits=8)
-  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, Actor1Geo_FullName, Actor2Geo_FullName, EventCode, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventRootCode='14' and EventCode <> '145' and FractionDate=", fraction_date, " and ActionGeo_CountryCode='", paste0(countrycode(country, "country.name.en" ,"fips105")), "'")
+  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, Actor1Geo_FullName, 
+                Actor2Geo_FullName, EventCode, FractionDate FROM [gdelt-bq:gdeltv2.events] WHERE EventRootCode='14' 
+                and EventCode <> '145' and FractionDate=", fraction_date, " and ActionGeo_CountryCode='", 
+                paste0(countrycode(country, "country.name.en" ,"fips105")), "'")
   print(sql)
   
   query_result = tryCatch({
@@ -69,12 +72,16 @@ get_non_violent_protest <- function(year, month, day, country){
 }
 
 get_protest <- function(global_id){
-  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, Actor2Geo_Lat, Actor2Geo_Long, Actor1Geo_FullName, Actor2Geo_FullName, FractionDate, SOURCEURL FROM [gdelt-bq:gdeltv2.events] WHERE GLOBALEVENTID=", global_id)
+  sql <- paste0("SELECT GLOBALEVENTID, ActionGeo_Lat, ActionGeo_Long, Actor1Name, Actor2Name, EventCode, EventRootCode, 
+                AvgTone, GoldsteinScale, IsRootEvent, QuadClass, NumMentions, NumSources, Actor1Geo_Lat, Actor1Geo_Long, 
+                Actor2Geo_Lat, Actor2Geo_Long, Actor1Geo_FullName, Actor2Geo_FullName, FractionDate, SOURCEURL 
+                FROM [gdelt-bq:gdeltv2.events] WHERE GLOBALEVENTID=", global_id)
   return(query_exec(sql, project = project, max_pages = Inf))
 }
 
 get_mentions <- function(global_id){
-  sql <- paste0("SELECT GLOBALEVENTID, MentionSourceName, MentionIdentifier FROM [gdelt-bq:gdeltv2.eventmentions] WHERE GLOBALEVENTID=", global_id)
+  sql <- paste0("SELECT GLOBALEVENTID, MentionSourceName, MentionIdentifier FROM [gdelt-bq:gdeltv2.eventmentions] 
+                WHERE GLOBALEVENTID=", global_id)
   print(paste0(sql))
   return(query_exec(sql, project = project, max_pages = Inf))
 }
@@ -162,15 +169,15 @@ get_sequence <- function(violent_protest){
 
 mentions_to_avgtone <- function(events){
   return(renderPlot(symbols(events$GoldsteinScale, events$AvgTone, 
-                            squares=sqrt(events$NumMentions), inches=0.85, fg="black", bg="maroon2", 
+                            squares=sqrt(events$NumMentions), inches=0.85, fg="black", bg="deepskyblue2", 
                             xlab = "Goldstein Scale", ylab = "Average Tone", 
                             main = "Number of Mentions by Goldstein Scale and Average Tone")))
 }
 
 code_tone <- function(events) {
-  return(renderPlot(symbols(factor(events$EventCode), events$NumMentions, 
+  return(renderPlot(symbols(events$EventCode, events$NumMentions, 
                             circles = rescale(events$AvgTone, to = c(0,200)), inches=0.35,
-                            fg = "darkblue", bg = "slateblue1", xlab = "Event Code",
+                            fg = "black", bg = "orange1", xlab = "Event Code",
                             ylab = "Number of Mentions", 
                             main = "Average Tone by Event Code and Number of Mentions")))
 }
@@ -183,16 +190,20 @@ eventcode_count <- function(events){
   
   b <- ggplot2::ggplot(bar_data, aes(x = Event_Code, y= Average_Tone, 
                                      fill=Event_Code)) + 
-    geom_bar(width = 1, stat="identity", show.legend = TRUE, na.rm = TRUE) + 
-    labs(x = "Event Code", y = "Average Tone") + 
-    labs(title = "Average Tone Based on Event Code") +
+    geom_bar(width = 1, stat="identity", show.legend = TRUE, na.rm = TRUE) +
+    labs(x = "Event Code", y = "Average Tone", title = "Average Tone Based on Event Code") +
     theme_light() + 
-    theme(panel.grid = element_line(colour = "grey50"),
-          panel.border = element_rect(linetype = "solid", fill = NA),
-          plot.title = element_text(size = rel(2), face = "bold"),
-          axis.title = element_text(face = "bold"), 
-          legend.text = element_text(events$EventCode)
-    )
+    theme(
+      panel.background = element_rect(fill = "grey60", colour = "grey60",
+                                      size = 0.5, linetype = "solid"),
+      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                      colour = "white"), 
+      panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                      colour = "white"),
+      plot.title = element_text(size = rel(1.5), face = "bold"),
+      axis.title = element_text(face = "bold"),
+      panel.border = element_rect(linetype = "solid", fill = NA))
+    
   
   return(renderPlot(b))
 }
@@ -223,20 +234,26 @@ event_time <- function(events) {
   
   scat_data <- data.frame(
     Dates = response,
-    Average_Tone = events$AvgTone)
+    Average_Tone = events$AvgTone,
+    EventCode = events$EventCode)
   
-  t <- ggplot2::ggplot(scat_data, aes(x = Dates, y = Average_Tone),
-                       fill = Avg_Tone) +
-    geom_count(stat="identity", show.legend = TRUE, inherit.aes = TRUE, na.rm = TRUE) + 
-    labs(x = "Date", y = "Average Tone") + 
-    labs(title = "Average Tone Over 90 Day Window") +
-    theme_bw() + 
-    theme(panel.grid = element_line(colour = "grey50"),
-          panel.border = element_rect(linetype = "solid", fill = NA),
-          plot.title = element_text(size = rel(2), face = "bold"),
-          axis.title = element_text(face = "bold"), 
-          legend.text = element_text(events$EventCode)
-    )
+  t <- ggplot2::ggplot(scat_data, aes(x = Dates, y = Average_Tone)) +
+    geom_count(aes(x = Dates, y = Average_Tone), size = 4, colour = "magenta2",
+                   stat="identity", show.legend = TRUE, inherit.aes = TRUE, na.rm = TRUE) + 
+    geom_text(aes(x = Dates, y = Average_Tone, label = EventCode),
+              position = position_dodge(width = 1), vjust = -.75, hjust = 0.5, size = 3) +
+    labs(x = "Date", y = "Average Tone", title = "Average Tone Over 90 Day Sequence") +
+    theme_light() + 
+    theme(
+      panel.background = element_rect(fill = "grey60", colour = "grey60",
+                                      size = 0.5, linetype = "solid"),
+      panel.grid.major = element_line(size = 0.5, linetype = 'solid',
+                                      colour = "white"), 
+      panel.grid.minor = element_line(size = 0.25, linetype = 'solid',
+                                      colour = "white"),
+      plot.title = element_text(size = rel(1.5), face = "bold"),
+      axis.title = element_text(face = "bold"),
+      panel.border = element_rect(linetype = "solid", fill = NA))
   
   return(renderPlot(t))
 }
