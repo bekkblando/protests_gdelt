@@ -27,7 +27,22 @@ shinyUI(
         id = "nav",
            
         tabPanel("Intro",
-          value = "intro"
+          value = "intro",
+          tags$h3("Why analyze this data?"),
+          tags$p("
+            Effective protests are the landmark of a strong democracy. With a history ranging from early republics to modern day struggles, protests have been a form of expression and medium for change for hundreds of years. 
+            However, violence can sometimes emerge from these events which not only hurts the surrounding community, but also the cause of the peaceful protesters. The goal of this project is to provide analysis on why a protest might turn violent. 
+            The use of this knowledge is so that organizers and everyday citizens can be aware of potential violence and push in a peaceful direction."
+          ),
+          tags$h3("The GDELT Data Set"),
+          tags$p("
+            The Global Database of Events, Language and Tone (GDELT) uses deep learning algorithms to translate the world’s news in 65 languages:  extracting more than 300 categories of events, 
+            using 60 predictor variables, millions of themes, and thousands of emotions into the GDELT Event Database."),
+          tags$p("
+                Each event is categorized by GDELT using machine learning. As the data is not categorized by humans the events can be mis-categorized or from unchecked news sources. 
+                 Please verify the SOURCEURL's before investigating the event."),
+          tags$p("Please checkout our code!"),
+          tags$a(href="https://github.com/bekkblando/protests_gdelt", target="_blank", "Our Code!")
         ),
         
         tabPanel("Documentation",
@@ -110,6 +125,98 @@ shinyUI(
                      more than likely to minor occurrences."
                 ),
               tags$h1("Examples"),
+              tags$p("
+            This is a document sharing my experience using the GDELT Violent Protest Analysis Application to investigate and 
+                       visualize recent events related to the Freddie Gray Case. The original case occurred in Baltimore, Maryland in 2015 
+                       when Freddie Gray was into custody for carrying a knife in West Baltimore. Gray was handcuffed and shackled in the 
+                       back of a police transport van, but was not restrained with a seatbelt. After being driven around in the van for a 
+                       significant part of the day unrestrained, Gray sustained severe injuries to his spinal cord. He died a week later, 
+                       and the officers involved did not receive any criminal prosecution at the time. This led to large scale riots, arson, 
+                       and looting throughout Baltimore. 
+                       "),
+              tags$p("
+                       Recently, two of the five officers accepted minor disciplinary actions (5 days of unpaid leave) in lieu of 
+                       facing a trial board and possible termination. This led to additional violent protests as the public remained 
+                       outraged by the actions of these officers, and it is the root event for this analysis. 
+                       "),
+              tags$style("#Figure1{height: 100%;}"),
+              tags$style("#Figure1 {height: 100% !important;}"),
+              tags$p(imageOutput("Figure1")),
+              tags$p("
+                       I started by inputting September 10, 2017 as the date of my query with the date drop down menu in the top left,
+                       and then the USA as my country of interest in the middle drop down menu. This displayed the map that you can see 
+                       above with 10 unique geotags. Each of those tags is a violent protest that occurred with the parameters that were 
+                       input, specifically violent protests in the USA that occurred on September 10, 2017. You can zoom in and out and 
+                       view the map in more detail by using the zoom buttons on the top left, or by scrolling. I zoomed into the Tri-State 
+                       area and clicked on the geotag in Baltimore. In most cases, this would update the map to display a Red Tag on our 
+                       root event (the violent protest) and a series of blue tags on any events that led up to the occurrence of the 
+                       violent protest. In this example, however, all the events occurred in the same location, so only the main event tag 
+                       is visible on the map.
+                       "),
+              tags$style("#Figure2 {height: 100% !important;}"),
+              imageOutput("Figure2"),
+              tags$p("
+                       Selecting one of the Red Tagged violent protests supplies the user with more details about 
+                       the event, including the date that it occurred on, the Global Event ID that the GDELT data 
+                       set associates with the event, and the coordinates of where the event occurred. We are also 
+                       given details about who was involved in the event in the form of Actor 1 and Actor 2, what 
+                       the event was (Event Code), and how it was received by the public (average tone), and how much 
+                       of an impact that this event likely had on the stability of an area. For my case, we see that Actor1 
+                       is listed as NA. This means that no person or organization was the aggressor in the action, which is 
+                       what we would expect from a general protest by the public. Actor 2 is the Police, which fits as the 
+                       protest was against suspected police brutality. The event has a code of 145 means that it was a violent 
+                       protest with a relatively negative average tone (-6.36). In the data set we used, average tone scale goes from 
+                       -100 to 100, but typical values fall only between -10 and +10. We can also see that this event had a -7.5 on the 
+                       Goldstein scale, which is a measure of the theoretical impact an event has on the stability of a geographic location 
+                       measured from +10 to -10. In this case, -7.5 means that the event had a destabilizing effect on the area.
+                       "),
+              imageOutput("Figure3"),
+              tags$p("
+                       Above is the list of secondary events that are part of the sequence related to the violent protest in Baltimore. 
+                       We can see that these events all occurred in the same location across the course of a few weeks and involved the 
+                       general public and the Police. The event codes in the middle tell us what each event was and this sequence includes 
+                       accusations (11), demands (10), and violent protests (14). We are also able to see the general tone that each of these events encountered.
+                       "),
+              imageOutput("Figure4"),
+              tags$p("
+                       We also have access to how many times each event was mentioned across all source documents during the 15-minute period in which this event
+                       was first seen. This allows us to assess the importance of an event. Only events with a greater than average number of mentions in this critical
+                       period are included in the sequence.  From this section of the application we can access these source materials to get more information before 
+                       delving into the analysis. If we look at these articles, we see that not all of them seem to be directly related with the discipline of the officers 
+                       that I initially mentioned, so what happened?
+                       "),
+              tags$p("
+                       Upon further investigation, I found that only two of the articles listed in the sequence were unrelated to the case, and that is a side effect of how well 
+                       the data can be filtered using the information given in the GDELT Database. The other 4 that don’t directly mention the officers are also based on the case, 
+                       and revolved around the officers’ superiors and the trials that await them. While our algorithms aren’t 100% accurate at filtering out noise, only receiving 
+                       two stray articles out of over a quarter of a billion records across 85 different languages from around the world is still impressive.
+                       "),
+              imageOutput("Figure5"),
+              tags$p("
+                       Above is plot displaying the relationship between the Average Tone of each of the events against the relative impact to the locations stability. 
+                       We can also see the number of mentions each event has based on the width of the blocks. Here the larger the impact to stability, the more mentions an 
+                       event seemed to have.
+                       "),
+              imageOutput("Figure6"),
+              tags$p("
+                       It doesn’t seem that the average number of mentions of the events in this sequence are directly correlated with the type of event that occurred, but we 
+                       do see that one of the protests received significantly more attention than the other events.
+                       "),
+              imageOutput("Figure7"),
+              tags$p("
+                       Tone however, does seem to grow more negative with the nature of the event. Here we see that both the accusations and the protests received very negative 
+                       scores as compared to accusations.
+                       "),
+              imageOutput("Figure8"),
+              tags$p("
+                       It also appears that after the initially negative tone near the beginning of the sequence, the public seemed to calm down during the events of the protest and 
+                       cool off. The outlier in the bottom is an accusation unrelated to the sequence. 
+                       "),
+              imageOutput("Figure9"),
+              tags$p("
+                       Finally, we can see a breakdown of the timeline of the events. It seems that most the protests within the sequence occurred directly around the time that the officers 
+                       accepted a small punishment in lieu of facing trial, and even more non-protest activity occurred around the times of the trials for the officer’s superiors.
+                       "),
               tags$h3("Finding a Protest"),
               tags$p(
                 "Finding a protest starts with choosing a country, a month, and a year. Protest Explorer
@@ -376,28 +483,71 @@ shinyUI(
         
         tabPanel("Holistic Statistics",
           value = "holistic_statistics",
-          tags$h3("Number of Violent Protests per Year:"),
-          imageOutput("violent_protests_yearly"),
-          tags$div("From 1990 – 2017, reporting of violent protests has been increasing exponentially in the United States and the World at similar rates."),
-          tags$h3("U.S. MIN – 1995 (65 violent protests)  6.8% of the world’s protests"),
-          tags$h3("U.S. MAX – 2016 (13,237 violent protests)  13.8% of the world’s protests"),
-          tags$h3("WW MIN – 1993 (961 violent protests)"),
-          tags$h3("WW MAX – 2016 (96,100 violent protests)"),
-          tags$h3("Number of Non-Violent Protests per Year:"),
-          tags$h3("From 1990 – 2017, reporting of non-violent protests has been increasing exponentially in the United States and the World at similar rates."),
-          tags$h3("U.S. MIN – 1993 (692 non-violent protests)  6.9% of the world’s protests"),
-          tags$h3("U.S. MAX – 2016 (209,675 non-violent protests)  19.6% of the world’s protests"),
-          tags$h3("WW MIN – 1992 (9963 non-violent protests)"),
-          tags$h3("WW MAX – 2016 (1,067,129 non-violent protests)"),
+          tags$style("div.shiny-image-output{height: 100% !important}"),
+          fluidRow(
+            column(12, tags$h3("Number of Violent Protests per Year:")),
+            column(12, tags$h5("From 1990 – 2017, reporting of violent protests has been increasing exponentially in the United States and the World at similar rates."))
+            ),
+          fluidRow(column(6, 
+              imageOutput("USvp"),
+              column(6, tags$p("U.S. MIN – 1995 (65 violent protests)  6.8% of the world’s protests")),
+              column(6, tags$p("U.S. MAX – 2016 (13,237 violent protests)  13.8% of the world’s protests"))       
+                          )
+              ),
+
+          
+          fluidRow(
+            column(6, 
+                imageOutput("WWvp"),
+                 fluidRow(
+                   column(6, tags$div("WW MIN – 1993 (961 violent protests)")),          
+                   column(6, tags$div("WW MAX – 2016 (96,100 violent protests)"))
+                 )
+            )
+          ),
+          
+
+          fluidRow(
+            column(12, tags$h3("Number of Non-Violent Protests per Year:")),
+            column(12, tags$h5("From 1990 – 2017, reporting of non-violent protests has been increasing exponentially in the United States and the World at similar rates."))          
+          ),
+          fluidRow(
+            column(6, imageOutput("USnvp"),
+            column(6, tags$p("U.S. MIN – 1993 (692 non-violent protests)  6.9% of the world’s protests")),
+            column(6, tags$p("U.S. MAX – 2016 (209,675 non-violent protests)  19.6% of the world’s protests"))
+            )
+          ),
+
+          fluidRow(
+            column(6, imageOutput("WWnvp"),
+            column(6, tags$p("WW MIN – 1992 (9963 non-violent protests)")),
+            column(6, tags$p("WW MAX – 2016 (1,067,129 non-violent protests)"))
+            )
+          ),
+
+
           tags$h3("Average Tone Per Year Surrounding Violent Protests:"),
-          tags$h3("WW – From 1990 to 2014, average tone was 3.8, but sharply dropped to -4.5 from 2015 to 2017."),
-          tags$h3("U.S. – From 1990 to 2014, average tone was 4.6, but sharply dropped to -4.4 from 2015 to 2017."),
-          tags$h3("Average Tone Per Year Surrounding Non-Violent Protests:"),
-          tags$h3("WW – From 1990 to 2014, average tone was 4.3, but sharply dropped to -3.3 from 2015 to 2017."),
-          tags$h3("U.S. – From 1990 to 2014, average tone was 5.2, but sharply dropped to -2.2 from 2015 to 2017."),              
+          tags$h5("WW – From 1990 to 2014, average tone was 3.8, but sharply dropped to -4.5 from 2015 to 2017."),
+          fluidRow(
+            column(6, imageOutput("WWvp_tone"))
+          ),
+          
+          tags$h5("U.S. – From 1990 to 2014, average tone was 4.6, but sharply dropped to -4.4 from 2015 to 2017."),
+          fluidRow(
+            column(6, imageOutput("USvp_tone"))
+          ),
+
           tags$h3("Average Goldstein Scale Per Year Surrounding Non-Violent Protests:"),
-          tags$h3("WW – From 1990 to 2014, average Goldstein was 4.5, but sharply dropped to -4.4 from 2015 to 2017."),
-          tags$h3("U.S. – From 1990 to 2014, average Goldstein was 4.2, but sharply dropped to -4.1 from 2015 to 2017.")
+          fluidRow(
+            column(12, imageOutput("WWnvp_goldstein"),
+            column(12, tags$h5("WW – From 1990 to 2014, average Goldstein was 4.5, but sharply dropped to -4.4 from 2015 to 2017."))
+            )
+          ),
+             
+          fluidRow(
+            column(12, imageOutput("USnvp_goldstein")),
+            column(12, tags$h5("U.S. – From 1990 to 2014, average Goldstein was 4.2, but sharply dropped to -4.1 from 2015 to 2017."))
+          )
           
         ),
         

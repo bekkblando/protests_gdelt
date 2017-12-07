@@ -33,7 +33,10 @@ source('db_help.R')
 
 project <- "DataScienceProtest" 
 
-#set_service_token("DataScienceProtest-2dc6d98778fa.json")
+
+# set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
+set_service_token(Sys.getenv("BIGQUERYCRED"))
+
 # set_service_token(Sys.getenv("BIGQUERYCRED"))
 #Sadie project ID pvp1-182616
 
