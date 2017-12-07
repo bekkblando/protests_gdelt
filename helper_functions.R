@@ -1,4 +1,4 @@
-project <- "DataScienceProtest" 
+project <- "datascienceprotest" 
 
 
 render_documentation <- function(output){
