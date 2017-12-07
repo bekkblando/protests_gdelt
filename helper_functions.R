@@ -1,10 +1,15 @@
 project <- "DataScienceProtest" 
 
+
+render_documentation <- function(output){
+  output$explore_venezuela <- renderImage({list(src =  "static/documentation/explore_venezuela.jpg", class="responsive-img", width="650")}, deleteFile = FALSE)
+  output$seq_explore_deetz <- renderImage({list(src =  "static/documentation/seq_explore_deetz.jpg", class="responsive-img", width="650")}, deleteFile = FALSE)
+  output$seq_explore_pt1 <- renderImage({list(src =  "static/documentation/seq_explore_pt1.jpg", class="responsive-img", width="650")}, deleteFile = FALSE)
+  output$seq_explore_pt2 <- renderImage({list(src =  "static/documentation/seq_explore_pt2.jpg", class="responsive-img", width="650")}, deleteFile = FALSE)
+}
+
 events_to_timeline <- function(events){
-  print(events$Date)
-  
- # print(c("2016-01-10", "2016-01-11",
-         #        "2016-01-20", "2016-02-14 15:00:00"))
+
   timeline <- data.frame(
     start   = events$Date,
     content = events$EventCode

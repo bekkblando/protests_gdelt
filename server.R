@@ -46,7 +46,9 @@ shinyServer(function(input, output, session) {
     stayAlive()
   })
   
-
+  # Render Documentation
+  render_documentation(output)
+  
   observeEvent(input$explore_date_submit, {
     # Render Loading Icon
     click <- input$explore_date_submit
