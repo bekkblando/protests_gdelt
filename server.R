@@ -34,8 +34,8 @@ source('db_help.R')
 project <- "datascienceprotest" 
 
 
-set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
-# set_service_token(Sys.getenv("BIGQUERYCRED"))
+# set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
+set_service_token(Sys.getenv("BIGQUERYCRED"))
 
 #Sadie project ID pvp1-182616
 
@@ -125,6 +125,7 @@ shinyServer(function(input, output, session) {
     
     root_protest = get_protest(click$id)
     
+
     if(!is.na(db_init())){
       if(input$flag){
         set_flagged(click$id)
