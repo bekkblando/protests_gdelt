@@ -15,6 +15,15 @@ render_documentation <- function(output){
   output$Figure7 <- renderImage({list(src =  "static/documentation/Figure7.png", class="responsive-img", width="650")}, deleteFile = FALSE)
   output$Figure8 <- renderImage({list(src =  "static/documentation/Figure8.png", class="responsive-img", width="650")}, deleteFile = FALSE)
   output$Figure9 <- renderImage({list(src =  "static/documentation/Figure9.png", class="responsive-img", width="650")}, deleteFile = FALSE)
+  
+  output$USnvp <- renderImage({list(src =  "static/documentation/USnvp.JPG", class="responsive-img", width="650")}, deleteFile = FALSE)
+  output$WWnvp <- renderImage({list(src =  "static/documentation/WWnvp.JPG", class="responsive-img", width="650")}, deleteFile = FALSE)
+  output$WWnvp_goldstein <- renderImage({list(src =  "static/documentation/WWnvp_goldstein.JPG", class="responsive-img", width="650")}, deleteFile = FALSE)
+  output$USnvp_goldstein <- renderImage({list(src =  "static/documentation/USnvp_goldstein.JPG", class="responsive-img", width="650")}, deleteFile = FALSE)
+  output$WWvp_tone <- renderImage({list(src =  "static/documentation/WWvp_tone.JPG", class="responsive-img", width="650")}, deleteFile = FALSE)
+  output$USvp_tone <- renderImage({list(src =  "static/documentation/USvp_tone.JPG", class="responsive-img", width="650")}, deleteFile = FALSE)
+  output$USvp <- renderImage({list(src =  "static/documentation/USvp.JPG", class="responsive-img", width="650")}, deleteFile = FALSE)
+  output$WWvp <- renderImage({list(src =  "static/documentation/WWvp.JPG", class="responsive-img", width="650")}, deleteFile = FALSE)
 }
 
 events_to_timeline <- function(events){

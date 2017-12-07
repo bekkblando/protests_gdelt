@@ -27,7 +27,22 @@ shinyUI(
         id = "nav",
            
         tabPanel("Intro",
-          value = "intro"
+          value = "intro",
+          tags$h3("Why analyze this data?"),
+          tags$p("
+            Effective protests are the landmark of a strong democracy. With a history ranging from early republics to modern day struggles, protests have been a form of expression and medium for change for hundreds of years. 
+            However, violence can sometimes emerge from these events which not only hurts the surrounding community, but also the cause of the peaceful protesters. The goal of this project is to provide analysis on why a protest might turn violent. 
+            The use of this knowledge is so that organizers and everyday citizens can be aware of potential violence and push in a peaceful direction."
+          ),
+          tags$h3("The GDELT Data Set"),
+          tags$p("
+            The Global Database of Events, Language and Tone (GDELT) uses deep learning algorithms to translate the world’s news in 65 languages:  extracting more than 300 categories of events, 
+            using 60 predictor variables, millions of themes, and thousands of emotions into the GDELT Event Database."),
+          tags$p("
+                Each event is categorized by GDELT using machine learning. As the data is not categorized by humans the events can be mis-categorized or from unchecked news sources. 
+                 Please verify the SOURCEURL's before investigating the event."),
+          tags$p("Please checkout our code!"),
+          tags$a(href="https://github.com/bekkblando/protests_gdelt", target="_blank", "Our Code!")
         ),
         
         tabPanel("Documentation",
@@ -468,28 +483,71 @@ shinyUI(
         
         tabPanel("Holistic Statistics",
           value = "holistic_statistics",
-          tags$h3("Number of Violent Protests per Year:"),
-          imageOutput("violent_protests_yearly"),
-          tags$div("From 1990 – 2017, reporting of violent protests has been increasing exponentially in the United States and the World at similar rates."),
-          tags$h3("U.S. MIN – 1995 (65 violent protests)  6.8% of the world’s protests"),
-          tags$h3("U.S. MAX – 2016 (13,237 violent protests)  13.8% of the world’s protests"),
-          tags$h3("WW MIN – 1993 (961 violent protests)"),
-          tags$h3("WW MAX – 2016 (96,100 violent protests)"),
-          tags$h3("Number of Non-Violent Protests per Year:"),
-          tags$h3("From 1990 – 2017, reporting of non-violent protests has been increasing exponentially in the United States and the World at similar rates."),
-          tags$h3("U.S. MIN – 1993 (692 non-violent protests)  6.9% of the world’s protests"),
-          tags$h3("U.S. MAX – 2016 (209,675 non-violent protests)  19.6% of the world’s protests"),
-          tags$h3("WW MIN – 1992 (9963 non-violent protests)"),
-          tags$h3("WW MAX – 2016 (1,067,129 non-violent protests)"),
+          tags$style("div.shiny-image-output{height: 100% !important}"),
+          fluidRow(
+            column(12, tags$h3("Number of Violent Protests per Year:")),
+            column(12, tags$h5("From 1990 – 2017, reporting of violent protests has been increasing exponentially in the United States and the World at similar rates."))
+            ),
+          fluidRow(column(6, 
+              imageOutput("USvp"),
+              column(6, tags$p("U.S. MIN – 1995 (65 violent protests)  6.8% of the world’s protests")),
+              column(6, tags$p("U.S. MAX – 2016 (13,237 violent protests)  13.8% of the world’s protests"))       
+                          )
+              ),
+
+          
+          fluidRow(
+            column(6, 
+                imageOutput("WWvp"),
+                 fluidRow(
+                   column(6, tags$div("WW MIN – 1993 (961 violent protests)")),          
+                   column(6, tags$div("WW MAX – 2016 (96,100 violent protests)"))
+                 )
+            )
+          ),
+          
+
+          fluidRow(
+            column(12, tags$h3("Number of Non-Violent Protests per Year:")),
+            column(12, tags$h5("From 1990 – 2017, reporting of non-violent protests has been increasing exponentially in the United States and the World at similar rates."))          
+          ),
+          fluidRow(
+            column(6, imageOutput("USnvp"),
+            column(6, tags$p("U.S. MIN – 1993 (692 non-violent protests)  6.9% of the world’s protests")),
+            column(6, tags$p("U.S. MAX – 2016 (209,675 non-violent protests)  19.6% of the world’s protests"))
+            )
+          ),
+
+          fluidRow(
+            column(6, imageOutput("WWnvp"),
+            column(6, tags$p("WW MIN – 1992 (9963 non-violent protests)")),
+            column(6, tags$p("WW MAX – 2016 (1,067,129 non-violent protests)"))
+            )
+          ),
+
+
           tags$h3("Average Tone Per Year Surrounding Violent Protests:"),
-          tags$h3("WW – From 1990 to 2014, average tone was 3.8, but sharply dropped to -4.5 from 2015 to 2017."),
-          tags$h3("U.S. – From 1990 to 2014, average tone was 4.6, but sharply dropped to -4.4 from 2015 to 2017."),
-          tags$h3("Average Tone Per Year Surrounding Non-Violent Protests:"),
-          tags$h3("WW – From 1990 to 2014, average tone was 4.3, but sharply dropped to -3.3 from 2015 to 2017."),
-          tags$h3("U.S. – From 1990 to 2014, average tone was 5.2, but sharply dropped to -2.2 from 2015 to 2017."),              
+          tags$h5("WW – From 1990 to 2014, average tone was 3.8, but sharply dropped to -4.5 from 2015 to 2017."),
+          fluidRow(
+            column(6, imageOutput("WWvp_tone"))
+          ),
+          
+          tags$h5("U.S. – From 1990 to 2014, average tone was 4.6, but sharply dropped to -4.4 from 2015 to 2017."),
+          fluidRow(
+            column(6, imageOutput("USvp_tone"))
+          ),
+
           tags$h3("Average Goldstein Scale Per Year Surrounding Non-Violent Protests:"),
-          tags$h3("WW – From 1990 to 2014, average Goldstein was 4.5, but sharply dropped to -4.4 from 2015 to 2017."),
-          tags$h3("U.S. – From 1990 to 2014, average Goldstein was 4.2, but sharply dropped to -4.1 from 2015 to 2017.")
+          fluidRow(
+            column(12, imageOutput("WWnvp_goldstein"),
+            column(12, tags$h5("WW – From 1990 to 2014, average Goldstein was 4.5, but sharply dropped to -4.4 from 2015 to 2017."))
+            )
+          ),
+             
+          fluidRow(
+            column(12, imageOutput("USnvp_goldstein")),
+            column(12, tags$h5("U.S. – From 1990 to 2014, average Goldstein was 4.2, but sharply dropped to -4.1 from 2015 to 2017."))
+          )
           
         ),
         
