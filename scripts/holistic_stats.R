@@ -21,7 +21,7 @@ violent_protest_world = rbind(violent_protest_graph_new, violent_protest_graph_o
 violent_protest_world$Year = as.factor(violent_protest_world$Year)
 
 g <- ggplot(violent_protest_world, aes(x = violent_protest_world$Year, 
-                                       y = violent_protest_world$f0_)) + geom_bar(stat = "identity", fill = "violetred3") +
+            y = violent_protest_world$f0_)) + geom_bar(stat = "identity", fill = "violetred3") +
   geom_text(aes(x = violent_protest_world$Year, 
                 y = violent_protest_world$f0_, label = violent_protest_world$f0_),
             position = position_dodge(width = 1), vjust = -0.5, hjust = 0.5, size = 3)

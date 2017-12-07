@@ -7,6 +7,7 @@ library("ggplot2")
 library(DT)
 library(scales)
 library(dplyr)
+library(timevis)
 source('helper_functions.R')
 source('db_help.R')
 
@@ -30,10 +31,15 @@ source('db_help.R')
   # Fix crashing - Bekk - Done
   # More Specific Sequences - Tyler and Bjerken - Complete
 
-project <- "datascienceprotest" 
+project <- "DataScienceProtest" 
+
 
 # set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
 set_service_token(Sys.getenv("BIGQUERYCRED"))
+
+# set_service_token(Sys.getenv("BIGQUERYCRED"))
+#Sadie project ID pvp1-182616
+
 
 shinyServer(function(input, output, session) {
   
@@ -43,7 +49,9 @@ shinyServer(function(input, output, session) {
     stayAlive()
   })
   
-
+  # Render Documentation
+  render_documentation(output)
+  
   observeEvent(input$explore_date_submit, {
     # Render Loading Icon
     click <- input$explore_date_submit
@@ -177,6 +185,8 @@ shinyServer(function(input, output, session) {
     output$code_tone <- code_tone(non_root_seq)
     output$eventcode_count <- eventcode_count(non_root_seq)
     output$event_time <- event_time(non_root_seq)
+    output$events_to_timeline <- renderTimevis({ timevis(events_to_timeline(non_root_seq)) })
+    
     # removeUI("loading")
   })
 })
