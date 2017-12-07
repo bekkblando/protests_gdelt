@@ -1,7 +1,3 @@
-The idea of this project is to use GDELT Project data to identify events and collect other data, based on the event such as twitter and facebook data. With this data collected, we will try to identify what factors before a protest may lead it to become violent and predict if new protests will become violent.
+Effective protests are the landmark of a strong democracy. With a history ranging from early republics to modern day struggles, protests have been a form of expression and medium for change for hundreds of years. However, violence can sometimes emerge from these events which not only hurts the surrounding community, but also the cause of the peaceful protesters. The goal of this project is to provide analysis on why a protest might turn violent. The use of this knowledge is so that organizers and everyday citizens can be aware of potential violence and push in a peaceful direction.
 
-The main data source is the GDELT Project. GDELT 2.0 is available using Google BigQuery and collects various information on events in human history. One example of helpful data is a URL collection of "mentions" which will allow us to access vast amounts of text data connected to the event. The size of the entire GDELT Project Database is 2.5 Terabytes, however, we would only be focusing on the last 15 years.
-
-
-
-Currently we are still exploring the data and the tools to create a comprehensive design for the final project.
+The main data source is the GDELT Project. GDELT 2.0 is available using Google BigQuery and collects various information on events in human history. One example of helpful data is a URL collection of "mentions" which will allow us to access vast amounts of text data connected to the event. The size of the entire GDELT Project Database for 2016 is 2.5 Terabytes, however, we would only be focusing on the last 3 years.
