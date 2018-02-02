@@ -31,7 +31,7 @@ source('db_help.R')
   # Fix crashing - Bekk - Done
   # More Specific Sequences - Tyler and Bjerken - Complete
 
-project <- "datascienceprotest" 
+project <- "dataScience" 
 
 
 # set_service_token("DataScienceProtest-2dc6d98778fa.json") #change this
